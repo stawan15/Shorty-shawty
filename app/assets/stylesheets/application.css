@@ -1,10 +1,231 @@
 /*
  * This is a manifest file that'll be compiled into application.css.
- *
- * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
- * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
- * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
- * depending on specificity.
- *
- * Consider organizing styles into separate files for maintainability.
  */
+
+/* ── Reset & Base ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --c-bg:       #f8fafc;
+  --c-surface:  #ffffff;
+  --c-border:   #e2e8f0;
+  --c-text:     #1e293b;
+  --c-muted:    #64748b;
+  --c-primary:  #6366f1;
+  --c-primary-h:#4f46e5;
+  --c-danger:   #ef4444;
+  --c-success:  #22c55e;
+  --radius:     0.5rem;
+  --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+  --shadow-lg:  0 10px 25px rgba(0,0,0,.1);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--c-bg);
+  color: var(--c-text);
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Navbar ──────────────────────────────────────────────── */
+.navbar {
+  background: var(--c-surface);
+  border-bottom: 1px solid var(--c-border);
+  position: sticky; top: 0; z-index: 100;
+}
+.nav-container {
+  max-width: 1100px; margin: auto;
+  padding: .75rem 1.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-brand {
+  font-size: 1.25rem; font-weight: 700;
+  color: var(--c-primary); text-decoration: none;
+}
+.nav-links { display: flex; align-items: center; gap: .75rem; }
+.nav-email { font-size: .85rem; color: var(--c-muted); }
+.nav-link { color: var(--c-text); text-decoration: none; font-size: .9rem; }
+.nav-link:hover { color: var(--c-primary); }
+
+/* ── Buttons ─────────────────────────────────────────────── */
+.btn, .nav-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: .5rem 1.1rem; border-radius: var(--radius);
+  font-size: .9rem; font-weight: 500; cursor: pointer;
+  border: none; text-decoration: none; transition: background .15s;
+}
+.btn-primary, .nav-btn-primary {
+  background: var(--c-primary); color: #fff;
+}
+.btn-primary:hover, .nav-btn-primary:hover { background: var(--c-primary-h); color: #fff; }
+.btn-outline, .nav-btn-outline {
+  background: transparent;
+  border: 1px solid var(--c-border);
+  color: var(--c-text);
+}
+.btn-outline:hover, .nav-btn-outline:hover { background: var(--c-bg); }
+
+/* ── Flash ───────────────────────────────────────────────── */
+.flash {
+  max-width: 1100px; margin: 1rem auto 0; padding: .75rem 1.25rem;
+  border-radius: var(--radius); font-size: .9rem;
+}
+.flash-notice { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.flash-alert  { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+/* ── Main layout ─────────────────────────────────────────── */
+.main-content { flex: 1; max-width: 1100px; margin: 0 auto; padding: 1.5rem; width: 100%; }
+.footer { text-align: center; padding: 1.5rem; color: var(--c-muted); font-size: .85rem; }
+
+/* ── Hero / Shorten Form ─────────────────────────────────── */
+.hero {
+  background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+  border-radius: 1rem; padding: 3rem 2rem; text-align: center;
+  margin-bottom: 2rem; box-shadow: var(--shadow-lg);
+}
+.hero-title { font-size: 2.5rem; font-weight: 800; color: #fff; margin-bottom: .5rem; }
+.hero-sub { color: rgba(255,255,255,.85); font-size: 1.1rem; margin-bottom: 2rem; }
+
+.shorten-form { max-width: 700px; margin: 0 auto; }
+.form-row {
+  display: flex; flex-direction: column; gap: .75rem;
+}
+@media (min-width: 640px) {
+  .form-row { flex-direction: row; flex-wrap: wrap; }
+  .form-row .form-input:first-child { flex: 1 1 100%; }
+  .form-row .form-optional { flex: 1; }
+  .form-row .btn { flex-shrink: 0; }
+}
+.form-input {
+  padding: .7rem 1rem; border-radius: var(--radius);
+  border: 2px solid rgba(255,255,255,.3);
+  background: rgba(255,255,255,.95);
+  font-size: 1rem; width: 100%;
+  outline: none; transition: border .15s;
+}
+.form-input:focus { border-color: var(--c-primary); }
+.form-input-sm { font-size: .9rem; }
+.form-errors {
+  background: rgba(239,68,68,.15); border: 1px solid rgba(239,68,68,.4);
+  border-radius: var(--radius); padding: .75rem 1rem;
+  color: #fff; text-align: left; margin-bottom: .75rem;
+}
+
+/* ── Dashboard ───────────────────────────────────────────── */
+.dashboard { background: var(--c-surface); border-radius: 1rem; padding: 1.5rem; box-shadow: var(--shadow); }
+.dashboard-header { display: flex; align-items: center; gap: .75rem; margin-bottom: 1.25rem; }
+.section-title { font-size: 1.25rem; font-weight: 700; }
+.badge {
+  background: var(--c-primary); color: #fff;
+  font-size: .75rem; font-weight: 600;
+  padding: .2rem .6rem; border-radius: 9999px;
+}
+.table-wrapper { overflow-x: auto; }
+.url-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.url-table th {
+  text-align: left; padding: .6rem .75rem;
+  color: var(--c-muted); font-weight: 600; font-size: .8rem;
+  border-bottom: 1px solid var(--c-border);
+  text-transform: uppercase; letter-spacing: .05em;
+}
+.url-table td {
+  padding: .75rem; border-bottom: 1px solid var(--c-border);
+  vertical-align: middle;
+}
+.url-table tr:last-child td { border-bottom: none; }
+.url-table tr:hover td { background: var(--c-bg); }
+.text-center { text-align: center; }
+.text-right  { text-align: right; }
+.td-original { max-width: 250px; }
+.td-date { white-space: nowrap; color: var(--c-muted); font-size: .85rem; }
+.link-muted { color: var(--c-muted); text-decoration: none; word-break: break-all; }
+.link-muted:hover { color: var(--c-primary); }
+.link-short { color: var(--c-primary); font-weight: 600; text-decoration: none; word-break: break-all; }
+.link-short:hover { text-decoration: underline; }
+.short-link-cell { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
+.click-count { font-weight: 700; color: var(--c-primary); }
+.muted { color: var(--c-muted); }
+
+.copy-btn {
+  background: none; border: none; cursor: pointer; font-size: .9rem;
+  padding: .1rem .3rem; border-radius: .25rem;
+  transition: background .1s;
+}
+.copy-btn:hover { background: var(--c-bg); }
+
+.action-group { display: flex; align-items: center; justify-content: flex-end; gap: .3rem; }
+.action-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2rem; height: 2rem; border-radius: var(--radius);
+  border: 1px solid var(--c-border); background: var(--c-surface);
+  cursor: pointer; font-size: .9rem; text-decoration: none;
+  transition: background .12s;
+}
+.action-btn:hover { background: var(--c-bg); }
+.action-btn-danger:hover { background: #fee2e2; border-color: #fca5a5; }
+.action-btn form, .action-btn input[type=submit] { margin: 0; }
+
+/* ── Empty / CTA states ─────────────────────────────────── */
+.empty-state, .cta-section {
+  text-align: center; padding: 2.5rem 1rem; color: var(--c-muted);
+  background: var(--c-surface); border-radius: 1rem; margin-top: 1rem;
+}
+.cta-section { font-size: 1rem; }
+
+/* ── Analytics page ─────────────────────────────────────── */
+.page-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;
+}
+.page-title { font-size: 1.75rem; font-weight: 800; }
+.page-sub { color: var(--c-muted); font-size: .9rem; margin-top: .25rem; }
+
+.stats-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem; margin-bottom: 1.5rem;
+}
+.stat-card {
+  background: var(--c-surface); border-radius: 1rem;
+  padding: 1.25rem; text-align: center; box-shadow: var(--shadow);
+}
+.stat-value { font-size: 2rem; font-weight: 800; color: var(--c-primary); }
+.stat-label { font-size: .8rem; color: var(--c-muted); margin-top: .25rem; text-transform: uppercase; letter-spacing: .05em; }
+
+.qr-preview { display: flex; justify-content: center; margin-bottom: .25rem; }
+.qr-img { width: 80px; height: 80px; }
+
+.analytics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+@media (max-width: 700px) { .analytics-grid { grid-template-columns: 1fr; } }
+
+.card { background: var(--c-surface); border-radius: 1rem; padding: 1.25rem; box-shadow: var(--shadow); }
+.card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; }
+.empty-msg { color: var(--c-muted); font-size: .9rem; }
+
+.bar-track { background: var(--c-bg); border-radius: 9999px; height: 8px; min-width: 80px; }
+.bar-fill { background: var(--c-primary); height: 8px; border-radius: 9999px; min-width: 4px; }
+
+/* ── Devise forms ────────────────────────────────────────── */
+.devise-form {
+  max-width: 420px; margin: 2rem auto;
+  background: var(--c-surface); border-radius: 1rem;
+  padding: 2rem; box-shadow: var(--shadow-lg);
+}
+.devise-form h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; }
+.devise-form .field { margin-bottom: 1rem; }
+.devise-form label { display: block; font-size: .85rem; font-weight: 600; margin-bottom: .3rem; color: var(--c-muted); }
+.devise-form input[type=email],
+.devise-form input[type=password],
+.devise-form input[type=text] {
+  width: 100%; padding: .6rem .9rem; border-radius: var(--radius);
+  border: 1px solid var(--c-border); font-size: .95rem;
+  outline: none; transition: border .15s;
+}
+.devise-form input:focus { border-color: var(--c-primary); }
+.devise-form .actions { margin-top: 1.25rem; }
+.devise-form .actions input { width: 100%; padding: .65rem; background: var(--c-primary); color: #fff; border: none; border-radius: var(--radius); font-size: 1rem; font-weight: 600; cursor: pointer; }
+.devise-form .actions input:hover { background: var(--c-primary-h); }
+.devise-form .devise-links { margin-top: 1rem; font-size: .85rem; text-align: center; }
+.devise-form .devise-links a { color: var(--c-primary); }

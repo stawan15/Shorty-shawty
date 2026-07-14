@@ -1,0 +1,61 @@
+<div class="devise-form" style="max-width:520px">
+<h2>Account Settings</h2>
+
+<% if current_user.api_token.present? %>
+  <div class="card" style="margin-bottom:1.5rem">
+    <p class="card-title" style="margin-bottom:.5rem">🔑 API Token</p>
+    <code style="font-size:.8rem;word-break:break-all;background:var(--c-bg);padding:.5rem .75rem;border-radius:.5rem;display:block"><%= current_user.api_token %></code>
+    <p style="font-size:.8rem;color:var(--c-muted);margin-top:.5rem">Use this token for API access: <code>Authorization: Bearer &lt;token&gt;</code></p>
+  </div>
+<% end %>
+
+<%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
+  <%= render "devise/shared/error_messages", resource: resource %>
+
+  <div class="field">
+    <%= f.label :email %>
+    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
+  </div>
+
+  <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+    <p style="color:var(--c-muted);font-size:.85rem">Waiting confirmation for: <%= resource.unconfirmed_email %></p>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :password %>
+    <small style="color:var(--c-muted)">(leave blank to keep current password)</small>
+    <%= f.password_field :password, autocomplete: "new-password" %>
+    <% if @minimum_password_length %>
+      <small style="color:var(--c-muted)"><%= @minimum_password_length %> characters minimum</small>
+    <% end %>
+  </div>
+
+  <div class="field">
+    <%= f.label :password_confirmation %>
+    <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
+  </div>
+
+  <div class="field">
+    <%= f.label :current_password %>
+    <small style="color:var(--c-muted)">(required to confirm changes)</small>
+    <%= f.password_field :current_password, autocomplete: "current-password" %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit "Update" %>
+  </div>
+<% end %>
+
+<hr style="margin:1.5rem 0;border:none;border-top:1px solid var(--c-border)">
+
+<h3 style="font-size:1rem;margin-bottom:.75rem;color:var(--c-danger)">Danger Zone</h3>
+<%= button_to "Delete my account", registration_path(resource_name),
+      data: { turbo_confirm: "Are you sure? This will delete all your URLs." },
+      method: :delete,
+      class: "btn btn-outline",
+      style: "color:var(--c-danger);border-color:var(--c-danger)" %>
+
+<div class="devise-links" style="margin-top:1rem">
+  <%= link_to "← Back to dashboard", root_path %>
+</div>
+</div>

@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  original_url: https://www.example.com/very/long/url/that/needs/shortening
+  short_code: abc123
+  clicks: 5
+
+two:
+  original_url: https://www.github.com/rails/rails
+  short_code: xyz789
+  clicks: 0

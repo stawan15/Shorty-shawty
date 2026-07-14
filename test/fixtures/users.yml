@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  email: alice@example.com
+  encrypted_password: <%= Devise::Encryptor.digest(User, "password123") %>
+  api_token: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+
+two:
+  email: bob@example.com
+  encrypted_password: <%= Devise::Encryptor.digest(User, "password123") %>
+  api_token: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb

@@ -1,0 +1,28 @@
+{
+  "name": "shorty",
+  "description": "URL Shortener built with Rails",
+  "scripts": {
+    "dokku": {
+      "predeploy": "bundle exec rails db:migrate"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1
+    }
+  },
+  "addons": [
+    "heroku-postgresql:hobby-dev"
+  ],
+  "env": {
+    "RAILS_ENV": {
+      "value": "production"
+    },
+    "RAILS_LOG_TO_STDOUT": {
+      "value": "enabled"
+    },
+    "RAILS_SERVE_STATIC_FILES": {
+      "value": "true"
+    }
+  }
+}
