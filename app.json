@@ -11,7 +11,34 @@
       "quantity": 1
     }
   },
+  "healthchecks": {
+    "web": [
+      {
+        "name": "web",
+        "description": "Rails health check — returns green HTML on success",
+        "path": "/up",
+        "attempts": 10,
+        "timeout": 5,
+        "wait": 5
+      }
+    ]
+  },
   "env": {
+    "RAILS_ENV": {
+      "value": "production"
+    },
+    "RAILS_LOG_TO_STDOUT": {
+      "value": "enabled"
+    },
+    "RAILS_SERVE_STATIC_FILES": {
+      "value": "true"
+    },
+    "WEB_CONCURRENCY": {
+      "value": "2",
+      "description": "Puma workers — enables phased (zero-downtime) restart on Dokku"
+    }
+  }
+}
     "RAILS_ENV": {
       "value": "production"
     },
