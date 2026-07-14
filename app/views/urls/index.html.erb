@@ -2,8 +2,11 @@
 
 <div class="hero">
   <div class="hero-inner">
-    <h1 class="hero-title">Shorten Any URL</h1>
-    <p class="hero-sub">Fast, free, and trackable short links in one click.</p>
+    <div class="hero-eyebrow">
+      <span class="hero-eyebrow-line"></span>URL Shortener
+    </div>
+    <h1 class="hero-title">Make long links<br><span class="hero-title-em">disappear.</span></h1>
+    <p class="hero-sub">Paste any URL, get a short link. Track clicks and share with confidence.</p>
 
     <%= form_with model: @url, url: urls_path, class: "shorten-form" do |f| %>
       <% if @url.errors.any? %>
@@ -17,17 +20,17 @@
       <div class="form-row">
         <%= f.url_field :original_url,
               placeholder: "https://example.com/your-very-long-url",
-              class: "form-input",
+              class: "form-input form-input-url",
               required: true,
               autofocus: true %>
-        <div class="form-optional">
+        <div class="form-stack">
           <%= f.text_field :short_code,
-                placeholder: "Custom alias (optional)",
+                placeholder: "custom-alias (optional)",
                 class: "form-input form-input-sm",
                 pattern: "[A-Za-z0-9_-]{3,20}",
                 title: "3–20 letters, numbers, _ or -" %>
+          <%= f.submit "Shorten →", class: "btn btn-primary" %>
         </div>
-        <%= f.submit "Shorten →", class: "btn btn-primary" %>
       </div>
     <% end %>
   </div>
@@ -63,7 +66,7 @@
                   <%= link_to short_url_for(url), redirect_short_url_path(url.short_code),
                         target: "_blank", rel: "noopener noreferrer", class: "link-short" %>
                   <button class="copy-btn" data-url="<%= short_url_for(url) %>" title="Copy to clipboard">
-                    📋
+                    copy
                   </button>
                 </div>
               </td>
@@ -73,10 +76,10 @@
               <td class="td-date"><%= url.created_at.strftime("%b %d, %Y") %></td>
               <td class="text-right">
                 <div class="action-group">
-                  <%= link_to "📊", analytics_url_path(url), class: "action-btn", title: "Analytics" %>
-                  <%= link_to "🔲", qr_code_url_path(url), class: "action-btn", title: "QR Code",
+                  <%= link_to "↗", analytics_url_path(url), class: "action-btn", title: "Analytics" %>
+                  <%= link_to "▦", qr_code_url_path(url), class: "action-btn", title: "QR Code",
                         target: "_blank" %>
-                  <%= button_to "🗑", url_path(url), method: :delete,
+                  <%= button_to "✕", url_path(url), method: :delete,
                         class: "action-btn action-btn-danger",
                         data: { turbo_confirm: "Delete this short URL?" } %>
                 </div>
@@ -89,14 +92,12 @@
   </section>
 <% elsif user_signed_in? %>
   <div class="empty-state">
-    <p>You haven't shortened any URLs yet. Try the form above!</p>
+    <p>no links yet &mdash; paste something above</p>
   </div>
 <% else %>
   <div class="cta-section">
-    <p>
-      <%= link_to "Sign up for free", new_user_registration_path, class: "btn btn-primary" %>
-      to save your links, track analytics, and get an API token.
-    </p>
+    <p>Create an account to save links &amp; track analytics.</p>
+    <%= link_to "Sign up for free", new_user_registration_path, class: "btn btn-primary" %>
   </div>
 <% end %>
 
@@ -105,7 +106,7 @@
     btn.addEventListener('click', () => {
       navigator.clipboard.writeText(btn.dataset.url).then(() => {
         const orig = btn.textContent;
-        btn.textContent = '✅';
+        btn.textContent = 'copied!';
         setTimeout(() => btn.textContent = orig, 1500);
       });
     });

@@ -3,6 +3,9 @@
   <head>
     <title><%= content_for(:title) || "Shorty — URL Shortener" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="Shorty — fast, free URL shortener with click analytics and QR codes.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= yield :head %>
@@ -14,7 +17,10 @@
   <body>
     <nav class="navbar">
       <div class="nav-container">
-        <%= link_to "⚡ Shorty", root_path, class: "nav-brand" %>
+        <%= link_to root_path, class: "nav-brand" do %>
+          <span class="nav-brand-dot"></span>shorty
+          <span class="nav-version" id="nav-version">v<%= APP_VERSION %></span>
+        <% end %>
         <div class="nav-links">
           <% if user_signed_in? %>
             <span class="nav-email"><%= current_user.email %></span>
@@ -39,7 +45,7 @@
     </main>
 
     <footer class="footer">
-      <p>&copy; <%= Time.current.year %> Shorty. Built with Rails.</p>
+      <p>shorty &mdash; <%= Time.current.year %></p>
     </footer>
   </body>
 </html>
