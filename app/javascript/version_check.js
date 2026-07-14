@@ -36,4 +36,7 @@ function showUpdateBanner (newVersion) {
 // เริ่ม polling หลัง page load
 if (typeof window !== 'undefined') {
   setInterval(checkVersion, POLL_INTERVAL)
+
+  // Dev helper: window.checkVersion() เพื่อ trigger ทดสอบจาก browser console
+  window.checkVersion = checkVersion
 }
