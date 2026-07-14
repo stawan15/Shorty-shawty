@@ -597,6 +597,61 @@ a { color: inherit; }
 .devise-form .devise-links a { color: var(--amber); text-decoration: none; }
 .devise-form .devise-links a:hover { text-decoration: underline; }
 
+/* ── Version Update Banner ────────────────────────────────── */
+#version-banner {
+  position: fixed;
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  background: var(--ink-2);
+  border: 1px solid var(--amber);
+  border-radius: var(--r-md);
+  padding: 0.65rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--paper);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(232, 160, 48, 0.12);
+  white-space: nowrap;
+  animation: banner-in 0.28s var(--ease-out);
+}
+
+@keyframes banner-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(6px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+#version-banner button {
+  background: var(--amber);
+  color: var(--ink);
+  border: none;
+  border-radius: var(--r-sm);
+  padding: 0.28rem 0.7rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+#version-banner button:hover { background: var(--amber-l); }
+
+#version-banner button[aria-label="ปิด"] {
+  background: transparent;
+  border: 1px solid var(--ink-3);
+  color: var(--ink-4);
+  font-size: 0.72rem;
+  padding: 0.28rem 0.5rem;
+  font-weight: 400;
+}
+#version-banner button[aria-label="ปิด"]:hover {
+  border-color: var(--ink-4);
+  color: var(--paper);
+  background: var(--ink-3);
+}
+
 /* ── Responsive ───────────────────────────────────────────── */
 @media (max-width: 640px) {
   .main-content { padding: 1.5rem 1rem; }
@@ -604,4 +659,5 @@ a { color: inherit; }
   .hero-title { font-size: 2.4rem; }
   .nav-email { display: none; }
   .form-stack { flex-direction: column; }
+  #version-banner { font-size: 0.78rem; bottom: 0.75rem; width: calc(100% - 2rem); white-space: normal; }
 }

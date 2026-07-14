@@ -1,0 +1,6 @@
+# Dokku zero-downtime checks
+# Dokku จะ spin up container ใหม่ก่อน แล้วรอให้ path นี้ตอบถูกต้อง
+# ก่อนจะ kill container เก่า
+WAIT=5
+ATTEMPTS=10
+/up  200

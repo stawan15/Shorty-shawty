@@ -11,9 +11,6 @@
       "quantity": 1
     }
   },
-  "addons": [
-    "heroku-postgresql:hobby-dev"
-  ],
   "env": {
     "RAILS_ENV": {
       "value": "production"
@@ -23,6 +20,10 @@
     },
     "RAILS_SERVE_STATIC_FILES": {
       "value": "true"
+    },
+    "WEB_CONCURRENCY": {
+      "value": "2",
+      "description": "Puma workers — enables phased (zero-downtime) restart on Dokku"
     }
   }
 }

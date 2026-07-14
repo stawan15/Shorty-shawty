@@ -28,8 +28,17 @@
 threads_count = ENV.fetch("RAILS_MAX_THREADS", 3)
 threads threads_count, threads_count
 
-# Specifies the `port` that Puma will listen on to receive requests; default is 3000.
 port ENV.fetch("PORT", 3000)
+
+# Dokku zero-downtime: set WEB_CONCURRENCY=2 ใน Dokku config
+# dokku config:set shorty WEB_CONCURRENCY=2
+workers ENV.fetch("WEB_CONCURRENCY", 1)
+
+# Phased restart — เมื่อ deploy ใหม่ Puma จะ spin worker ใหม่ก่อน kill เก่า
+# (ใช้ได้เฉพาะเมื่อ workers >= 2)
+if ENV.fetch("WEB_CONCURRENCY", 1).to_i > 1
+  preload_app!
+end
 
 # Allow puma to be restarted by `bin/rails restart` command.
 plugin :tmp_restart
@@ -37,6 +46,4 @@ plugin :tmp_restart
 # Run the Solid Queue supervisor inside of Puma for single-server deployments.
 plugin :solid_queue if ENV["SOLID_QUEUE_IN_PUMA"]
 
-# Specify the PID file. Defaults to tmp/pids/server.pid in development.
-# In other environments, only set the PID file if requested.
 pidfile ENV["PIDFILE"] if ENV["PIDFILE"]
