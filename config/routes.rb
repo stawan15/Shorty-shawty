@@ -18,6 +18,11 @@ Rails.application.routes.draw do
   end
 
   get "up" => "rails/health#show", as: :rails_health_check
+  get "version" => proc {
+    [200,
+     { "Content-Type" => "application/json" },
+     [{ version: APP_VERSION, deployed_at: Rails.application.config.x.deployed_at }.to_json]]
+  }
 
   # Short URL redirect — must be last
   get "/:short_code", to: "redirect#show", as: :redirect_short_url

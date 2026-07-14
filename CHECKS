@@ -1,0 +1,5 @@
+# Dokku zero-downtime checks (deprecated in favour of app.json healthchecks)
+# Kept for older Dokku compatibility — second column is body content, NOT status code
+WAIT=5
+ATTEMPTS=10
+/up

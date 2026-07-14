@@ -11,9 +11,18 @@
       "quantity": 1
     }
   },
-  "addons": [
-    "heroku-postgresql:hobby-dev"
-  ],
+  "healthchecks": {
+    "web": [
+      {
+        "name": "web",
+        "description": "Rails health check",
+        "path": "/up",
+        "attempts": 10,
+        "timeout": 5,
+        "wait": 5
+      }
+    ]
+  },
   "env": {
     "RAILS_ENV": {
       "value": "production"
@@ -23,6 +32,10 @@
     },
     "RAILS_SERVE_STATIC_FILES": {
       "value": "true"
+    },
+    "WEB_CONCURRENCY": {
+      "value": "2",
+      "description": "Puma workers for zero-downtime hot restart"
     }
   }
 }
