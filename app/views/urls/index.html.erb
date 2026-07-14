@@ -1,0 +1,113 @@
+<% content_for :title, "Shorty — Shorten Your URLs" %>
+
+<div class="hero">
+  <div class="hero-inner">
+    <h1 class="hero-title">Shorten Any URL</h1>
+    <p class="hero-sub">Fast, free, and trackable short links in one click.</p>
+
+    <%= form_with model: @url, url: urls_path, class: "shorten-form" do |f| %>
+      <% if @url.errors.any? %>
+        <div class="form-errors">
+          <% @url.errors.full_messages.each do |msg| %>
+            <p><%= msg %></p>
+          <% end %>
+        </div>
+      <% end %>
+
+      <div class="form-row">
+        <%= f.url_field :original_url,
+              placeholder: "https://example.com/your-very-long-url",
+              class: "form-input",
+              required: true,
+              autofocus: true %>
+        <div class="form-optional">
+          <%= f.text_field :short_code,
+                placeholder: "Custom alias (optional)",
+                class: "form-input form-input-sm",
+                pattern: "[A-Za-z0-9_-]{3,20}",
+                title: "3–20 letters, numbers, _ or -" %>
+        </div>
+        <%= f.submit "Shorten →", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<% if @urls.any? %>
+  <section class="dashboard">
+    <div class="dashboard-header">
+      <h2 class="section-title">Your Links</h2>
+      <span class="badge"><%= @urls.size %> URLs</span>
+    </div>
+
+    <div class="table-wrapper">
+      <table class="url-table">
+        <thead>
+          <tr>
+            <th>Original URL</th>
+            <th>Short Link</th>
+            <th class="text-center">Clicks</th>
+            <th>Created</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @urls.each do |url| %>
+            <tr>
+              <td class="td-original">
+                <%= link_to truncate(url.original_url, length: 50), url.original_url,
+                      target: "_blank", rel: "noopener noreferrer", class: "link-muted" %>
+              </td>
+              <td>
+                <div class="short-link-cell">
+                  <%= link_to short_url_for(url), redirect_short_url_path(url.short_code),
+                        target: "_blank", rel: "noopener noreferrer", class: "link-short" %>
+                  <button class="copy-btn" data-url="<%= short_url_for(url) %>" title="Copy to clipboard">
+                    📋
+                  </button>
+                </div>
+              </td>
+              <td class="text-center">
+                <span class="click-count"><%= url.clicks %></span>
+              </td>
+              <td class="td-date"><%= url.created_at.strftime("%b %d, %Y") %></td>
+              <td class="text-right">
+                <div class="action-group">
+                  <%= link_to "📊", analytics_url_path(url), class: "action-btn", title: "Analytics" %>
+                  <%= link_to "🔲", qr_code_url_path(url), class: "action-btn", title: "QR Code",
+                        target: "_blank" %>
+                  <%= button_to "🗑", url_path(url), method: :delete,
+                        class: "action-btn action-btn-danger",
+                        data: { turbo_confirm: "Delete this short URL?" } %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+<% elsif user_signed_in? %>
+  <div class="empty-state">
+    <p>You haven't shortened any URLs yet. Try the form above!</p>
+  </div>
+<% else %>
+  <div class="cta-section">
+    <p>
+      <%= link_to "Sign up for free", new_user_registration_path, class: "btn btn-primary" %>
+      to save your links, track analytics, and get an API token.
+    </p>
+  </div>
+<% end %>
+
+<script type="module">
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      navigator.clipboard.writeText(btn.dataset.url).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = '✅';
+        setTimeout(() => btn.textContent = orig, 1500);
+      });
+    });
+  });
+</script>
