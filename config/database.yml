@@ -96,5 +96,4 @@ production:
     migrations_paths: db/queue_migrate
   cable:
     <<: *primary_production
-    database: shorty_production_cable
     migrations_paths: db/cable_migrate
