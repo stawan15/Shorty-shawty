@@ -6,14 +6,16 @@
     <p class="page-sub">
       <%= link_to short_url_for(@url), redirect_short_url_path(@url.short_code),
             target: "_blank", rel: "noopener noreferrer", class: "link-short" %>
-      &rarr;
-      <%= link_to truncate(@url.original_url, length: 60), @url.original_url,
-            target: "_blank", rel: "noopener noreferrer", class: "link-muted" %>
+      <span style="color:var(--ink-4)">→</span>
+      <%= link_to truncate(@url.original_url, length: 55), @url.original_url,
+            target: "_blank", rel: "noopener noreferrer", class: "link-muted",
+            title: @url.original_url %>
     </p>
   </div>
   <%= link_to "← Back", root_path, class: "btn btn-outline" %>
 </div>
 
+<%# Miller's Law: 4 key stats. No more. %>
 <div class="stats-grid">
   <div class="stat-card">
     <div class="stat-value"><%= @url.clicks %></div>
@@ -31,7 +33,10 @@
     <div class="qr-preview">
       <%= image_tag qr_code_url_path(@url), alt: "QR Code", class: "qr-img" %>
     </div>
-    <div class="stat-label">QR Code <a href="<%= qr_code_url_path(@url) %>" download="qr-<%= @url.short_code %>.svg" class="link-muted">(download)</a></div>
+    <div class="stat-label">
+      QR Code &nbsp;
+      <a href="<%= qr_code_url_path(@url) %>" download="qr-<%= @url.short_code %>.svg" class="link-muted">download</a>
+    </div>
   </div>
 </div>
 
@@ -44,14 +49,14 @@
           <tr>
             <th>Date</th>
             <th class="text-right">Clicks</th>
-            <th>Bar</th>
+            <th style="min-width:100px">Volume</th>
           </tr>
         </thead>
         <tbody>
           <% max = @clicks_by_day.values.max.to_f %>
           <% @clicks_by_day.each do |date, count| %>
             <tr>
-              <td><%= date %></td>
+              <td class="td-date"><%= date %></td>
               <td class="text-right"><strong><%= count %></strong></td>
               <td>
                 <div class="bar-track">
@@ -75,7 +80,7 @@
           <tr>
             <th>Time</th>
             <th>Referrer</th>
-            <th>Location</th>
+            <th>IP</th>
           </tr>
         </thead>
         <tbody>
@@ -84,12 +89,12 @@
               <td class="td-date"><%= click.created_at.strftime("%b %d %H:%M") %></td>
               <td class="td-original">
                 <% if click.referrer.present? %>
-                  <%= truncate(click.referrer, length: 40) %>
+                  <span title="<%= click.referrer %>"><%= truncate(click.referrer, length: 35) %></span>
                 <% else %>
                   <span class="muted">Direct</span>
                 <% end %>
               </td>
-              <td class="td-original muted"><%= click.ip_address %></td>
+              <td class="td-date muted"><%= click.ip_address %></td>
             </tr>
           <% end %>
         </tbody>

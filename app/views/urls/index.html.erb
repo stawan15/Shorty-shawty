@@ -1,113 +1,134 @@
 <% content_for :title, "Shorty — Shorten Your URLs" %>
 
 <div class="hero">
-  <div class="hero-inner">
-    <div class="hero-eyebrow">
-      <span class="hero-eyebrow-line"></span>URL Shortener
-    </div>
-    <h1 class="hero-title">Make long links<br><span class="hero-title-em">disappear.</span></h1>
-    <p class="hero-sub">Paste any URL, get a short link. Track clicks and share with confidence.</p>
+  <div class="hero-eyebrow">
+    <span class="hero-eyebrow-line"></span>URL Shortener
+  </div>
+  <h1 class="hero-title">Long URLs,<br><span class="hero-title-em">gone.</span></h1>
+  <p class="hero-sub">Paste any link and get a short, trackable URL in one click.</p>
 
-    <%= form_with model: @url, url: urls_path, class: "shorten-form" do |f| %>
-      <% if @url.errors.any? %>
-        <div class="form-errors">
-          <% @url.errors.full_messages.each do |msg| %>
-            <p><%= msg %></p>
-          <% end %>
-        </div>
-      <% end %>
-
-      <div class="form-row">
-        <%= f.url_field :original_url,
-              placeholder: "https://example.com/your-very-long-url",
-              class: "form-input form-input-url",
-              required: true,
-              autofocus: true %>
-        <div class="form-stack">
-          <%= f.text_field :short_code,
-                placeholder: "custom-alias (optional)",
-                class: "form-input form-input-sm",
-                pattern: "[A-Za-z0-9_-]{3,20}",
-                title: "3–20 letters, numbers, _ or -" %>
-          <%= f.submit "Shorten →", class: "btn btn-primary" %>
-        </div>
+  <%= form_with model: @url, url: urls_path, class: "shorten-form" do |f| %>
+    <% if @url.errors.any? %>
+      <div class="form-errors">
+        <% @url.errors.full_messages.each do |msg| %>
+          <p><%= msg %></p>
+        <% end %>
       </div>
     <% end %>
-  </div>
+
+    <div class="form-row-primary">
+      <%= f.url_field :original_url,
+            placeholder: "https://paste-your-long-url-here.com/...",
+            class: "form-input",
+            required: true,
+            autofocus: true %>
+      <%= f.submit "Shorten →", class: "btn-shorten" %>
+    </div>
+
+    <%# Progressive Disclosure — alias field only when needed (Hick's Law) %>
+    <button type="button" class="alias-toggle" id="alias-toggle">+ customize alias</button>
+    <div class="alias-row" id="alias-row" hidden>
+      <%= f.text_field :short_code,
+            placeholder: "my-custom-alias",
+            class: "form-input form-input-mono",
+            pattern: "[A-Za-z0-9_-]{3,20}",
+            title: "3–20 characters: letters, numbers, _ or -" %>
+    </div>
+  <% end %>
 </div>
 
 <% if @urls.any? %>
-  <section class="dashboard">
-    <div class="dashboard-header">
-      <h2 class="section-title">Your Links</h2>
-      <span class="badge"><%= @urls.size %> URLs</span>
+  <section class="links-section">
+    <div class="links-header">
+      <h2 class="links-title">Your links</h2>
+      <span class="links-count"><%= @urls.size %></span>
     </div>
 
-    <div class="table-wrapper">
-      <table class="url-table">
-        <thead>
-          <tr>
-            <th>Original URL</th>
-            <th>Short Link</th>
-            <th class="text-center">Clicks</th>
-            <th>Created</th>
-            <th class="text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @urls.each do |url| %>
-            <tr>
-              <td class="td-original">
-                <%= link_to truncate(url.original_url, length: 50), url.original_url,
-                      target: "_blank", rel: "noopener noreferrer", class: "link-muted" %>
-              </td>
-              <td>
-                <div class="short-link-cell">
-                  <%= link_to short_url_for(url), redirect_short_url_path(url.short_code),
-                        target: "_blank", rel: "noopener noreferrer", class: "link-short" %>
-                  <button class="copy-btn" data-url="<%= short_url_for(url) %>" title="Copy to clipboard">
-                    copy
-                  </button>
-                </div>
-              </td>
-              <td class="text-center">
-                <span class="click-count"><%= url.clicks %></span>
-              </td>
-              <td class="td-date"><%= url.created_at.strftime("%b %d, %Y") %></td>
-              <td class="text-right">
-                <div class="action-group">
-                  <%= link_to "↗", analytics_url_path(url), class: "action-btn", title: "Analytics" %>
-                  <%= link_to "▦", qr_code_url_path(url), class: "action-btn", title: "QR Code",
-                        target: "_blank" %>
-                  <%= button_to "✕", url_path(url), method: :delete,
-                        class: "action-btn action-btn-danger",
-                        data: { turbo_confirm: "Delete this short URL?" } %>
-                </div>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
+    <div class="links-list">
+      <% @urls.each do |url| %>
+        <div class="link-card">
+          <div class="link-card-body">
+            <div class="link-card-top">
+              <%= link_to short_url_for(url), redirect_short_url_path(url.short_code),
+                    target: "_blank", rel: "noopener noreferrer", class: "link-short" %>
+              <button class="copy-btn" data-url="<%= short_url_for(url) %>" title="Copy short link">
+                Copy
+              </button>
+            </div>
+            <%= link_to truncate(url.original_url, length: 80), url.original_url,
+                  target: "_blank", rel: "noopener noreferrer", class: "link-original",
+                  title: url.original_url %>
+          </div>
+
+          <div class="link-card-meta">
+            <span class="link-clicks"><%= url.clicks %> <%= url.clicks == 1 ? "click" : "clicks" %></span>
+            <span class="link-date"><%= url.created_at.strftime("%b %d") %></span>
+            <div class="link-actions">
+              <%= link_to "↗", analytics_url_path(url), class: "action-btn", title: "Analytics" %>
+              <%= link_to "▦", qr_code_url_path(url), class: "action-btn", title: "QR Code",
+                    target: "_blank" %>
+              <%= button_to "✕", url_path(url), method: :delete,
+                    class: "action-btn action-btn-danger",
+                    data: { turbo_confirm: "Delete this short URL?" },
+                    form: { style: "display:contents" } %>
+            </div>
+          </div>
+        </div>
+      <% end %>
     </div>
   </section>
+
 <% elsif user_signed_in? %>
   <div class="empty-state">
-    <p>no links yet &mdash; paste something above</p>
+    <div class="empty-state-icon">🔗</div>
+    <p>No links yet — paste something above to get started.</p>
   </div>
+
 <% else %>
   <div class="cta-section">
-    <p>Create an account to save links &amp; track analytics.</p>
-    <%= link_to "Sign up for free", new_user_registration_path, class: "btn btn-primary" %>
+    <p>Create a free account to save your links and track every click with analytics.</p>
+    <%= link_to "Create free account →", new_user_registration_path, class: "btn btn-primary" %>
+    <%= link_to "Sign in", new_user_session_path, class: "btn btn-outline" %>
   </div>
 <% end %>
 
 <script type="module">
+  // Progressive disclosure: alias toggle (Hick's Law)
+  const toggle = document.getElementById('alias-toggle');
+  const row    = document.getElementById('alias-row');
+  if (toggle && row) {
+    toggle.addEventListener('click', () => {
+      const hidden = row.hasAttribute('hidden');
+      if (hidden) {
+        row.removeAttribute('hidden');
+        toggle.textContent = '− hide alias';
+        row.querySelector('input')?.focus();
+      } else {
+        row.setAttribute('hidden', '');
+        toggle.textContent = '+ customize alias';
+      }
+    });
+    // If there's already a value (e.g. after validation error), show the field
+    const aliasInput = row.querySelector('input');
+    if (aliasInput && aliasInput.value) {
+      row.removeAttribute('hidden');
+      toggle.textContent = '− hide alias';
+    }
+  }
+
+  // Copy button — Doherty Threshold: instant feedback
   document.querySelectorAll('.copy-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       navigator.clipboard.writeText(btn.dataset.url).then(() => {
-        const orig = btn.textContent;
-        btn.textContent = 'copied!';
-        setTimeout(() => btn.textContent = orig, 1500);
+        btn.textContent = '✓ Copied';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 1800);
+      }).catch(() => {
+        btn.textContent = 'Failed';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 1800);
       });
     });
   });
