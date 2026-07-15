@@ -8,11 +8,19 @@ class UrlsController < ApplicationController
   end
 
   def create
-    @url = Url.new(url_params)
+    @url = Url.new(permitted_url_params)
     @url.user = current_user if user_signed_in?
 
     if @url.save
-      redirect_to root_path, notice: "Short URL created successfully!"
+      if user_signed_in?
+        redirect_to root_path, notice: "Short URL created successfully!"
+      else
+        redirect_to root_path, flash: {
+          notice: "Short URL ready to copy.",
+          guest_short_url: short_url_for(@url),
+          guest_original_url: @url.original_url
+        }
+      end
     else
       @urls = user_signed_in? ? current_user.urls.order(created_at: :desc) : []
       render :index, status: :unprocessable_entity
@@ -54,7 +62,9 @@ class UrlsController < ApplicationController
     end
   end
 
-  def url_params
-    params.require(:url).permit(:original_url, :short_code)
+  def permitted_url_params
+    allowed = [:original_url]
+    allowed << :short_code if user_signed_in?
+    params.require(:url).permit(*allowed)
   end
 end

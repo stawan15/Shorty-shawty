@@ -1,29 +1,28 @@
-<% content_for :title, "Analytics — #{@url.short_code}" %>
+<% content_for :title, "Analytics - #{@url.short_code}" %>
 
 <div class="page-header">
   <div>
-    <h1 class="page-title">Analytics</h1>
+    <h1 class="page-title">Link analytics</h1>
     <p class="page-sub">
       <%= link_to short_url_for(@url), redirect_short_url_path(@url.short_code),
             target: "_blank", rel: "noopener noreferrer", class: "link-short" %>
-      <span style="color:var(--ink-4)">→</span>
-      <%= link_to truncate(@url.original_url, length: 55), @url.original_url,
+      <span aria-hidden="true">/</span>
+      <%= link_to truncate(@url.original_url, length: 72), @url.original_url,
             target: "_blank", rel: "noopener noreferrer", class: "link-muted",
             title: @url.original_url %>
     </p>
   </div>
-  <%= link_to "← Back", root_path, class: "btn btn-outline" %>
+  <%= link_to "Back", root_path, class: "btn btn-outline" %>
 </div>
 
-<%# Miller's Law: 4 key stats. No more. %>
 <div class="stats-grid">
   <div class="stat-card">
     <div class="stat-value"><%= @url.clicks %></div>
-    <div class="stat-label">Total Clicks</div>
+    <div class="stat-label">Total clicks</div>
   </div>
   <div class="stat-card">
     <div class="stat-value"><%= @clicks_by_day.size %></div>
-    <div class="stat-label">Active Days</div>
+    <div class="stat-label">Active days</div>
   </div>
   <div class="stat-card">
     <div class="stat-value"><%= @url.created_at.strftime("%b %d") %></div>
@@ -31,10 +30,10 @@
   </div>
   <div class="stat-card">
     <div class="qr-preview">
-      <%= image_tag qr_code_url_path(@url), alt: "QR Code", class: "qr-img" %>
+      <%= image_tag qr_code_url_path(@url), alt: "QR code", class: "qr-img" %>
     </div>
     <div class="stat-label">
-      QR Code &nbsp;
+      QR code &nbsp;
       <a href="<%= qr_code_url_path(@url) %>" download="qr-<%= @url.short_code %>.svg" class="link-muted">download</a>
     </div>
   </div>
@@ -42,14 +41,14 @@
 
 <div class="analytics-grid">
   <section class="card">
-    <h2 class="card-title">Clicks by Day</h2>
+    <h2 class="card-title">Clicks by day</h2>
     <% if @clicks_by_day.any? %>
       <table class="url-table">
         <thead>
           <tr>
             <th>Date</th>
             <th class="text-right">Clicks</th>
-            <th style="min-width:100px">Volume</th>
+            <th>Volume</th>
           </tr>
         </thead>
         <tbody>
@@ -73,7 +72,7 @@
   </section>
 
   <section class="card">
-    <h2 class="card-title">Recent Clicks</h2>
+    <h2 class="card-title">Recent clicks</h2>
     <% if @recent_clicks.any? %>
       <table class="url-table">
         <thead>
@@ -89,7 +88,7 @@
               <td class="td-date"><%= click.created_at.strftime("%b %d %H:%M") %></td>
               <td class="td-original">
                 <% if click.referrer.present? %>
-                  <span title="<%= click.referrer %>"><%= truncate(click.referrer, length: 35) %></span>
+                  <span title="<%= click.referrer %>"><%= truncate(click.referrer, length: 42) %></span>
                 <% else %>
                   <span class="muted">Direct</span>
                 <% end %>
