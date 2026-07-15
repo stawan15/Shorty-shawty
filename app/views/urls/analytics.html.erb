@@ -32,7 +32,7 @@
     <div class="stat-label">Created</div>
   </div>
 
-  <%# QR card — image + link to QR page + download icon %>
+  <%# QR card — uses SVG format route (reliable on all browsers) %>
   <div class="stat-card stat-card-qr">
     <%= link_to qr_code_url_path(@url), class: "qr-thumb-link", title: "View QR Code" do %>
       <%= image_tag qr_code_url_path(@url, format: :svg),

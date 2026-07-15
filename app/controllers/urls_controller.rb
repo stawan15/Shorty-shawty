@@ -41,16 +41,20 @@ class UrlsController < ApplicationController
 
   def qr_code
     qr = RQRCode::QRCode.new(short_url_for(@url))
-    @qr_svg = qr.as_svg(
+    svg = qr.as_svg(
       offset: 0,
       color: "000",
       shape_rendering: "crispEdges",
       module_size: 7,
       standalone: true
     )
-    respond_to do |format|
-      format.html
-      format.svg { render plain: @qr_svg, content_type: "image/svg+xml" }
+
+    if params[:format] == "svg"
+      render plain: svg, content_type: "image/svg+xml"
+    else
+      # Embed as data URL — works on all devices, no second HTTP request
+      @qr_data_url = "data:image/svg+xml;base64,#{Base64.strict_encode64(svg)}"
+      @qr_svg_download = svg
     end
   end
 
