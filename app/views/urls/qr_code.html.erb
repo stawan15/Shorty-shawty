@@ -1,0 +1,25 @@
+<% content_for :title, "QR Code — #{@url.short_code}" %>
+
+<div class="qr-page">
+  <div class="qr-card">
+    <div class="qr-header">
+      <%= link_to "← Back", root_path, class: "qr-back" %>
+    </div>
+
+    <p class="qr-label">Scan to open</p>
+    <h1 class="qr-url"><%= short_url_for(@url) %></h1>
+    <p class="qr-original"><%= truncate(@url.original_url, length: 55) %></p>
+
+    <%# Data URL — embedded directly, no second request, works on all devices %>
+    <div class="qr-image-wrap">
+      <%= image_tag @qr_data_url,
+            alt: "QR Code for #{@url.short_code}",
+            class: "qr-svg-img" %>
+    </div>
+
+    <%# Download uses the SVG format route %>
+    <%= link_to "Download SVG", qr_code_url_path(@url, format: :svg),
+          download: "qr-#{@url.short_code}.svg",
+          class: "btn btn-primary" %>
+  </div>
+</div>

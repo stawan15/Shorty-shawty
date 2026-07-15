@@ -6,62 +6,85 @@
     <p class="page-sub">
       <%= link_to short_url_for(@url), redirect_short_url_path(@url.short_code),
             target: "_blank", rel: "noopener noreferrer", class: "link-short" %>
-      &rarr;
-      <%= link_to truncate(@url.original_url, length: 60), @url.original_url,
-            target: "_blank", rel: "noopener noreferrer", class: "link-muted" %>
+      <span style="color:var(--text-3)">→</span>
+      <%= link_to truncate(@url.original_url, length: 55), @url.original_url,
+            target: "_blank", rel: "noopener noreferrer", class: "link-muted",
+            title: @url.original_url %>
     </p>
   </div>
   <%= link_to "← Back", root_path, class: "btn btn-outline" %>
 </div>
 
+<%# 4 stat cards — Miller's Law: ไม่เกิน 4 %>
 <div class="stats-grid">
   <div class="stat-card">
     <div class="stat-value"><%= @url.clicks %></div>
     <div class="stat-label">Total Clicks</div>
   </div>
+
   <div class="stat-card">
     <div class="stat-value"><%= @clicks_by_day.size %></div>
     <div class="stat-label">Active Days</div>
   </div>
+
   <div class="stat-card">
     <div class="stat-value"><%= @url.created_at.strftime("%b %d") %></div>
     <div class="stat-label">Created</div>
   </div>
-  <div class="stat-card">
-    <div class="qr-preview">
-      <%= image_tag qr_code_url_path(@url), alt: "QR Code", class: "qr-img" %>
+
+  <%# QR card — uses SVG format route (reliable on all browsers) %>
+  <div class="stat-card stat-card-qr">
+    <%= link_to qr_code_url_path(@url), class: "qr-thumb-link", title: "View QR Code" do %>
+      <%= image_tag qr_code_url_path(@url, format: :svg),
+            alt: "QR Code", class: "qr-img" %>
+    <% end %>
+    <div class="qr-card-footer">
+      <span class="stat-label">QR Code</span>
+      <%= link_to qr_code_url_path(@url, format: :svg),
+            download: "qr-#{@url.short_code}.svg",
+            class: "qr-download-btn",
+            title: "Download QR Code" do %>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+      <% end %>
     </div>
-    <div class="stat-label">QR Code <a href="<%= qr_code_url_path(@url) %>" download="qr-<%= @url.short_code %>.svg" class="link-muted">(download)</a></div>
   </div>
 </div>
 
 <div class="analytics-grid">
+  <%# Scrollable — ถ้าใช้เป็นเดือนจะไม่ล้นออกมา %>
   <section class="card">
     <h2 class="card-title">Clicks by Day</h2>
     <% if @clicks_by_day.any? %>
-      <table class="url-table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th class="text-right">Clicks</th>
-            <th>Bar</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% max = @clicks_by_day.values.max.to_f %>
-          <% @clicks_by_day.each do |date, count| %>
+      <div class="card-scroll">
+        <table class="url-table">
+          <thead>
             <tr>
-              <td><%= date %></td>
-              <td class="text-right"><strong><%= count %></strong></td>
-              <td>
-                <div class="bar-track">
-                  <div class="bar-fill" style="width: <%= (count / max * 100).round %>%"></div>
-                </div>
-              </td>
+              <th>Date</th>
+              <th class="text-right">Clicks</th>
+              <th style="min-width:90px">Volume</th>
             </tr>
-          <% end %>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            <% max = @clicks_by_day.values.max.to_f %>
+            <% @clicks_by_day.each do |date, count| %>
+              <tr>
+                <td class="td-date"><%= date %></td>
+                <td class="text-right"><strong><%= count %></strong></td>
+                <td>
+                  <div class="bar-track">
+                    <div class="bar-fill" style="width:<%= (count / max * 100).round %>%"></div>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
     <% else %>
       <p class="empty-msg">No clicks recorded yet.</p>
     <% end %>
@@ -70,32 +93,34 @@
   <section class="card">
     <h2 class="card-title">Recent Clicks</h2>
     <% if @recent_clicks.any? %>
-      <table class="url-table">
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>Referrer</th>
-            <th>Location</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @recent_clicks.each do |click| %>
+      <div class="card-scroll">
+        <table class="url-table">
+          <thead>
             <tr>
-              <td class="td-date"><%= click.created_at.strftime("%b %d %H:%M") %></td>
-              <td class="td-original">
-                <% if click.referrer.present? %>
-                  <%= truncate(click.referrer, length: 40) %>
-                <% else %>
-                  <span class="muted">Direct</span>
-                <% end %>
-              </td>
-              <td class="td-original muted"><%= click.ip_address %></td>
+              <th>Time</th>
+              <th>Referrer</th>
+              <th>IP</th>
             </tr>
-          <% end %>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            <% @recent_clicks.each do |click| %>
+              <tr>
+                <td class="td-date"><%= click.created_at.strftime("%b %d %H:%M") %></td>
+                <td class="td-original">
+                  <% if click.referrer.present? %>
+                    <span title="<%= click.referrer %>"><%= truncate(click.referrer, length: 30) %></span>
+                  <% else %>
+                    <span class="muted">Direct</span>
+                  <% end %>
+                </td>
+                <td class="td-date muted"><%= click.ip_address %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
     <% else %>
-      <p class="empty-msg">No click details recorded yet.</p>
+      <p class="empty-msg">No click details yet.</p>
     <% end %>
   </section>
 </div>

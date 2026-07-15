@@ -1,114 +1,203 @@
-<% content_for :title, "Shorty — Shorten Your URLs" %>
+<% content_for :title, "Shorty — URL Shortener" %>
 
 <div class="hero">
-  <div class="hero-inner">
-    <div class="hero-eyebrow">
-      <span class="hero-eyebrow-line"></span>URL Shortener
-    </div>
-    <h1 class="hero-title">Make long links<br><span class="hero-title-em">disappear.</span></h1>
-    <p class="hero-sub">Paste any URL, get a short link. Track clicks and share with confidence.</p>
+  <h1 class="hero-title">Paste the URL to be shortened</h1>
 
-    <%= form_with model: @url, url: urls_path, class: "shorten-form" do |f| %>
+  <div class="form-card">
+    <%= form_with model: @url, url: urls_path do |f| %>
       <% if @url.errors.any? %>
         <div class="form-errors">
-          <% @url.errors.full_messages.each do |msg| %>
-            <p><%= msg %></p>
-          <% end %>
+          <% @url.errors.full_messages.each do |msg| %><p><%= msg %></p><% end %>
         </div>
       <% end %>
 
-      <div class="form-row">
+      <div class="form-row-primary">
         <%= f.url_field :original_url,
-              placeholder: "https://example.com/your-very-long-url",
-              class: "form-input form-input-url",
+              placeholder: "Enter the link here",
+              class: "form-input",
               required: true,
               autofocus: true %>
-        <div class="form-stack">
-          <%= f.text_field :short_code,
-                placeholder: "custom-alias (optional)",
-                class: "form-input form-input-sm",
-                pattern: "[A-Za-z0-9_-]{3,20}",
-                title: "3–20 letters, numbers, _ or -" %>
-          <%= f.submit "Shorten →", class: "btn btn-primary" %>
-        </div>
+        <%= f.submit "Shorten URL", class: "btn-shorten" %>
       </div>
+
+      <%# Custom alias — logged-in only %>
+      <% if user_signed_in? %>
+        <button type="button" class="alias-toggle" id="alias-toggle">+ customize alias</button>
+        <div class="alias-row" id="alias-row" hidden>
+          <%= f.text_field :short_code,
+                placeholder: "my-alias",
+                class: "form-input-alias",
+                pattern: "[A-Za-z0-9_-]{3,20}",
+                title: "3–20 characters, letters/numbers/- only" %>
+        </div>
+      <% end %>
     <% end %>
   </div>
+
+  <p class="hero-hint">Free URL shortener. Shorten links and track clicks.</p>
 </div>
 
+<%# Guest result — shows after shortening without an account %>
+<% if flash[:guest_short_url].present? %>
+  <div class="guest-result">
+    <p class="guest-result-label">Your short link is ready</p>
+    <div class="guest-result-row">
+      <%= link_to flash[:guest_short_url], flash[:guest_short_url],
+            target: "_blank", rel: "noopener noreferrer",
+            class: "guest-result-url" %>
+      <button class="copy-btn copy-btn-lg" data-url="<%= flash[:guest_short_url] %>">Copy</button>
+    </div>
+    <p class="guest-result-hint">
+      <%= link_to "Sign up free", new_user_registration_path %> to save links, track analytics, and create custom aliases.
+    </p>
+  </div>
+<% end %>
+
+<%# Dashboard — signed-in users only %>
 <% if @urls.any? %>
-  <section class="dashboard">
-    <div class="dashboard-header">
-      <h2 class="section-title">Your Links</h2>
-      <span class="badge"><%= @urls.size %> URLs</span>
+  <section class="links-section">
+    <div class="links-header">
+      <h2 class="links-title">Your links</h2>
+      <span class="links-count"><%= @urls.size %></span>
     </div>
 
-    <div class="table-wrapper">
-      <table class="url-table">
-        <thead>
-          <tr>
-            <th>Original URL</th>
-            <th>Short Link</th>
-            <th class="text-center">Clicks</th>
-            <th>Created</th>
-            <th class="text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @urls.each do |url| %>
-            <tr>
-              <td class="td-original">
-                <%= link_to truncate(url.original_url, length: 50), url.original_url,
-                      target: "_blank", rel: "noopener noreferrer", class: "link-muted" %>
-              </td>
-              <td>
-                <div class="short-link-cell">
-                  <%= link_to short_url_for(url), redirect_short_url_path(url.short_code),
-                        target: "_blank", rel: "noopener noreferrer", class: "link-short" %>
-                  <button class="copy-btn" data-url="<%= short_url_for(url) %>" title="Copy to clipboard">
-                    copy
-                  </button>
-                </div>
-              </td>
-              <td class="text-center">
-                <span class="click-count"><%= url.clicks %></span>
-              </td>
-              <td class="td-date"><%= url.created_at.strftime("%b %d, %Y") %></td>
-              <td class="text-right">
-                <div class="action-group">
-                  <%= link_to "↗", analytics_url_path(url), class: "action-btn", title: "Analytics" %>
-                  <%= link_to "▦", qr_code_url_path(url), class: "action-btn", title: "QR Code",
-                        target: "_blank" %>
-                  <%= button_to "✕", url_path(url), method: :delete,
-                        class: "action-btn action-btn-danger",
-                        data: { turbo_confirm: "Delete this short URL?" } %>
-                </div>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
+    <div class="links-list">
+      <% @urls.each do |url| %>
+        <div class="link-card" data-url-id="<%= url.id %>">
+          <%# Left: URL info — always visible %>
+          <div class="link-card-body">
+            <div class="link-card-top">
+              <%= link_to short_url_for(url), redirect_short_url_path(url.short_code),
+                    target: "_blank", rel: "noopener noreferrer", class: "link-short" %>
+              <button class="copy-btn" data-url="<%= short_url_for(url) %>">Copy</button>
+            </div>
+            <%= link_to truncate(url.original_url, length: 72), url.original_url,
+                  target: "_blank", rel: "noopener noreferrer", class: "link-original",
+                  title: url.original_url %>
+          </div>
+
+          <%# Right: stats + actions
+              Desktop: stats always, actions on hover
+              Mobile:  wraps to full-width bottom bar, actions always visible %>
+          <div class="link-card-side">
+            <span class="link-clicks"><%= url.clicks %> <%= url.clicks == 1 ? "click" : "clicks" %></span>
+            <span class="link-date"><%= url.created_at.strftime("%b %d") %></span>
+            <div class="link-actions">
+              <%= link_to "Stats", analytics_url_path(url), class: "link-action" %>
+              <%= link_to "QR", qr_code_url_path(url), class: "link-action" %>
+              <%= link_to "Delete", url_path(url),
+                    class: "link-action link-action-delete",
+                    data: { turbo_method: :delete, turbo_confirm: "Delete this link?" } %>
+            </div>
+          </div>
+        </div>
+      <% end %>
     </div>
   </section>
+
 <% elsif user_signed_in? %>
   <div class="empty-state">
-    <p>no links yet &mdash; paste something above</p>
+    <span class="empty-state-icon">🔗</span>
+    <p>No links yet — paste a URL above to get started.</p>
   </div>
-<% else %>
+
+<% elsif flash[:guest_short_url].blank? %>
+  <%# Only show CTA if guest hasn't just created a link %>
   <div class="cta-section">
-    <p>Create an account to save links &amp; track analytics.</p>
-    <%= link_to "Sign up for free", new_user_registration_path, class: "btn btn-primary" %>
+    <p>Create a free account to save links, track analytics, and use custom aliases.</p>
+    <%= link_to "Create free account", new_user_registration_path, class: "btn btn-primary" %>
+    <%= link_to "Sign in", new_user_session_path, class: "btn btn-outline" %>
   </div>
 <% end %>
 
 <script type="module">
+  const urlInput = document.querySelector('.form-input');
+  const shortenBtn = document.querySelector('.btn-shorten');
+  const form = document.querySelector('form');
+
+  // Fitts's Law: '/' keyboard shortcut = no hunting for input
+  document.addEventListener('keydown', e => {
+    const tag = document.activeElement?.tagName;
+    if (e.key === '/' && tag !== 'INPUT' && tag !== 'TEXTAREA') {
+      e.preventDefault();
+      urlInput?.focus();
+      urlInput?.select();
+    }
+  });
+
+  // Doherty Threshold: instant feedback on submit (<400ms perceived)
+  form?.addEventListener('submit', () => {
+    if (shortenBtn && !shortenBtn.disabled) {
+      shortenBtn.textContent = 'Shortening...';
+      shortenBtn.disabled = true;
+      shortenBtn.style.opacity = '0.7';
+    }
+  });
+
+  // Alias toggle
+  const toggle = document.getElementById('alias-toggle');
+  const row    = document.getElementById('alias-row');
+  if (toggle && row) {
+    toggle.addEventListener('click', () => {
+      const hidden = row.hasAttribute('hidden');
+      row.toggleAttribute('hidden', !hidden);
+      toggle.textContent = hidden ? '− hide alias' : '+ customize alias';
+      if (hidden) row.querySelector('input')?.focus();
+    });
+    if (row.querySelector('input')?.value) {
+      row.removeAttribute('hidden');
+      toggle.textContent = '− hide alias';
+    }
+  }
+
+  // Copy: Doherty Threshold + Peak-End Rule — make it satisfying
   document.querySelectorAll('.copy-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       navigator.clipboard.writeText(btn.dataset.url).then(() => {
         const orig = btn.textContent;
-        btn.textContent = 'copied!';
-        setTimeout(() => btn.textContent = orig, 1500);
+        btn.textContent = '✓ Copied';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
       });
     });
   });
+
+  // Hint: show keyboard shortcut hint in placeholder
+  if (urlInput && !urlInput.value) {
+    setTimeout(() => {
+      if (!urlInput.matches(':focus'))
+        urlInput.placeholder = 'Enter the link here  \u00b7  press / to focus';
+    }, 1500);
+    urlInput.addEventListener('focus', () => {
+      urlInput.placeholder = 'https://paste-your-long-url-here.com';
+    });
+  }
+
+  // ── Real-time click counts — poll every 15s, update only changed numbers ──
+  function pollClicks() {
+    if (!document.querySelector('[data-url-id]')) return;
+    fetch('/urls/click_counts', { headers: { Accept: 'application/json' } })
+      .then(r => r.ok ? r.json() : [])
+      .then(data => {
+        data.forEach(({ id, clicks }) => {
+          const card = document.querySelector(`[data-url-id="${id}"]`);
+          const el = card?.querySelector('.link-clicks');
+          if (!el) return;
+          const label = `${clicks} ${clicks === 1 ? 'click' : 'clicks'}`;
+          if (el.textContent.trim() !== label) {
+            el.textContent = label;
+            // Flash animation so user notices the update
+            el.classList.remove('count-updated');
+            void el.offsetWidth; // reflow to restart animation
+            el.classList.add('count-updated');
+          }
+        });
+      })
+      .catch(() => {}); // silent fail — user just won't see update if offline
+  }
+
+  // Start polling only if there are links on screen
+  if (document.querySelector('[data-url-id]')) {
+    setInterval(pollClicks, 10_000);
+  }
 </script>

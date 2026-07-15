@@ -1,30 +1,35 @@
-<div class="devise-form">
-<h2>Sign in</h2>
+<div class="devise-form" style="margin:2rem auto">
+  <%= link_to root_path, class: "devise-form-brand" do %>
+    shorty
+  <% end %>
 
-<%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
-  <div class="field">
-    <%= f.label :email %>
-    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
-  </div>
+  <h2>Welcome back</h2>
+  <p class="devise-form-subtitle">Sign in to manage your links.</p>
 
-  <div class="field">
-    <%= f.label :password %>
-    <%= f.password_field :password, autocomplete: "current-password" %>
-  </div>
+  <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+    <div class="field">
+      <%= f.label :email %>
+      <%= f.email_field :email, autofocus: true, autocomplete: "email", placeholder: "you@example.com" %>
+    </div>
 
-  <% if devise_mapping.rememberable? %>
-    <div class="field" style="display:flex;align-items:center;gap:.5rem">
-      <%= f.check_box :remember_me %>
-      <%= f.label :remember_me %>
+    <div class="field">
+      <%= f.label :password %>
+      <%= f.password_field :password, autocomplete: "current-password", placeholder: "••••••••" %>
+    </div>
+
+    <% if devise_mapping.rememberable? %>
+      <div class="field field-check">
+        <%= f.check_box :remember_me %>
+        <%= f.label :remember_me %>
+      </div>
+    <% end %>
+
+    <div class="actions">
+      <%= f.submit "Sign in" %>
     </div>
   <% end %>
 
-  <div class="actions">
-    <%= f.submit "Sign in" %>
+  <div class="devise-links">
+    <%= render "devise/shared/links" %>
   </div>
-<% end %>
-
-<div class="devise-links">
-  <%= render "devise/shared/links" %>
-</div>
 </div>

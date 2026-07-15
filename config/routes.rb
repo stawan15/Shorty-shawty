@@ -8,6 +8,9 @@ Rails.application.routes.draw do
       get :qr_code
       get :analytics
     end
+    collection do
+      get :click_counts  # JSON endpoint for real-time polling
+    end
   end
 
   namespace :api do
