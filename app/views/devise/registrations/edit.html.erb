@@ -1,18 +1,11 @@
 <div class="devise-form" style="margin:2rem auto; max-width:480px">
-  <%= link_to root_path, class: "devise-form-brand" do %>
-    <span class="devise-form-brand-dot"></span>shorty
-  <% end %>
+
+  <div style="margin-bottom:1.75rem">
+    <%= link_to "← Back", root_path, class: "qr-back" %>
+  </div>
 
   <h2>Account Settings</h2>
-  <p class="devise-form-subtitle">Manage your email, password, and API access.</p>
-
-  <% if current_user.api_token.present? %>
-    <div class="token-box">
-      <p class="token-box-label">API Token</p>
-      <code><%= current_user.api_token %></code>
-      <p class="token-box-hint">Use as: <code>Authorization: Bearer &lt;token&gt;</code></p>
-    </div>
-  <% end %>
+  <p class="devise-form-subtitle">Update your email or password.</p>
 
   <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
     <%= render "devise/shared/error_messages", resource: resource %>
@@ -21,16 +14,16 @@
       <%= f.label :email %>
       <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
       <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
-        <p class="field-hint">Awaiting confirmation for: <strong><%= resource.unconfirmed_email %></strong></p>
+        <span class="field-hint">Awaiting confirmation for: <strong><%= resource.unconfirmed_email %></strong></span>
       <% end %>
     </div>
 
     <div class="field">
       <%= f.label :password, "New Password" %>
-      <p class="field-hint">Leave blank to keep your current password</p>
+      <span class="field-hint">Leave blank to keep your current password</span>
       <%= f.password_field :password, autocomplete: "new-password", placeholder: "New password" %>
       <% if @minimum_password_length %>
-        <p class="field-hint"><%= @minimum_password_length %> characters minimum</p>
+        <span class="field-hint"><%= @minimum_password_length %> characters minimum</span>
       <% end %>
     </div>
 
@@ -41,7 +34,7 @@
 
     <div class="field">
       <%= f.label :current_password, "Current Password" %>
-      <p class="field-hint">Required to save any changes</p>
+      <span class="field-hint">Required to save any changes</span>
       <%= f.password_field :current_password, autocomplete: "current-password", placeholder: "Your current password" %>
     </div>
 
@@ -57,9 +50,6 @@
         data: { turbo_confirm: "This will permanently delete your account and all your URLs. Are you sure?" },
         method: :delete,
         class: "btn btn-outline",
-        style: "color:var(--red-fg);border-color:rgba(185,28,28,.35);width:100%;justify-content:center" %>
+        style: "color:var(--red);border-color:rgba(220,38,38,.3);width:100%;justify-content:center" %>
 
-  <div class="devise-links" style="margin-top:1rem">
-    <%= link_to "Back to dashboard", root_path %>
-  </div>
 </div>

@@ -16,7 +16,6 @@ class UrlsController < ApplicationController
         redirect_to root_path, notice: "Short URL created successfully!"
       else
         redirect_to root_path, flash: {
-          notice: "Short URL ready to copy.",
           guest_short_url: short_url_for(@url),
           guest_original_url: @url.original_url
         }
@@ -42,14 +41,17 @@ class UrlsController < ApplicationController
 
   def qr_code
     qr = RQRCode::QRCode.new(short_url_for(@url))
-    svg = qr.as_svg(
+    @qr_svg = qr.as_svg(
       offset: 0,
       color: "000",
       shape_rendering: "crispEdges",
-      module_size: 6,
+      module_size: 7,
       standalone: true
     )
-    render plain: svg, content_type: "image/svg+xml"
+    respond_to do |format|
+      format.html
+      format.svg { render plain: @qr_svg, content_type: "image/svg+xml" }
+    end
   end
 
   private

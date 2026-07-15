@@ -1,180 +1,175 @@
-<% content_for :title, "Shorty - Shorten Links" %>
+<% content_for :title, "Shorty — URL Shortener" %>
 
-<div class="dashboard-shell">
-  <section class="hero" aria-labelledby="shorten-title">
-    <div class="hero-header">
-      <p class="hero-eyebrow">Link workspace</p>
-      <h1 class="hero-title" id="shorten-title">Short links that stay <span class="hero-title-em">readable.</span></h1>
-      <p class="hero-sub">Paste a URL, keep the alias optional, and get a link that is easy to share and measure.</p>
-    </div>
+<div class="hero">
+  <h1 class="hero-title">Paste the URL to be shortened</h1>
 
-    <%= form_with model: @url, url: urls_path, class: "shorten-form" do |f| %>
+  <div class="form-card">
+    <%= form_with model: @url, url: urls_path do |f| %>
       <% if @url.errors.any? %>
-        <div class="form-errors" role="alert">
-          <% @url.errors.full_messages.each do |msg| %>
-            <p><%= msg %></p>
-          <% end %>
+        <div class="form-errors">
+          <% @url.errors.full_messages.each do |msg| %><p><%= msg %></p><% end %>
         </div>
       <% end %>
 
       <div class="form-row-primary">
         <%= f.url_field :original_url,
-              placeholder: "https://example.com/long/path",
+              placeholder: "Enter the link here",
               class: "form-input",
               required: true,
-              autofocus: true,
-              aria: { label: "URL to shorten" } %>
-        <%= f.submit "Shorten", class: "btn-shorten" %>
+              autofocus: true %>
+        <%= f.submit "Shorten URL", class: "btn-shorten" %>
       </div>
 
+      <%# Custom alias — logged-in only %>
       <% if user_signed_in? %>
-        <button type="button" class="alias-toggle" id="alias-toggle" aria-expanded="false" aria-controls="alias-row">Use a custom alias</button>
+        <button type="button" class="alias-toggle" id="alias-toggle">+ customize alias</button>
         <div class="alias-row" id="alias-row" hidden>
           <%= f.text_field :short_code,
-                placeholder: "product-launch",
-                class: "form-input form-input-mono",
+                placeholder: "my-alias",
+                class: "form-input-alias",
                 pattern: "[A-Za-z0-9_-]{3,20}",
-                title: "3-20 characters: letters, numbers, _ or -",
-                aria: { label: "Custom alias" } %>
+                title: "3–20 characters, letters/numbers/- only" %>
         </div>
-      <% else %>
-        <p class="form-note">Custom aliases are available after sign in.</p>
       <% end %>
     <% end %>
-  </section>
+  </div>
 
-  <aside class="context-panel" aria-label="Workspace summary">
-    <div class="context-panel-header">
-      <%= image_tag "/icon.svg", alt: "", class: "context-mark" %>
-      <div>
-        <p class="context-panel-title">shorty</p>
-        <p class="context-panel-sub"><%= user_signed_in? ? current_user.email : "Guest workspace" %></p>
-      </div>
-    </div>
-    <dl class="context-list">
-      <div class="context-item">
-        <dt>Total links</dt>
-        <dd><%= @urls.size %></dd>
-      </div>
-      <div class="context-item">
-        <dt>Total clicks</dt>
-        <dd><%= @urls.sum(&:clicks) %></dd>
-      </div>
-      <div class="context-item">
-        <dt>Account</dt>
-        <dd><%= user_signed_in? ? "Saved" : "Guest" %></dd>
-      </div>
-    </dl>
-  </aside>
+  <p class="hero-hint">Free URL shortener. Shorten links and track clicks.</p>
 </div>
 
+<%# Guest result — shows after shortening without an account %>
 <% if flash[:guest_short_url].present? %>
-  <section class="guest-result" aria-labelledby="guest-result-title">
-    <div>
-      <p class="guest-result-label" id="guest-result-title">Short link ready</p>
-      <%= link_to flash[:guest_short_url], flash[:guest_short_url],
-            target: "_blank", rel: "noopener noreferrer", class: "link-short" %>
-      <% if flash[:guest_original_url].present? %>
-        <p class="guest-result-original"><%= truncate(flash[:guest_original_url], length: 92) %></p>
-      <% end %>
+  <div class="guest-result">
+    <p class="guest-result-label">Your short link is ready</p>
+    <div class="guest-result-row">
+      <a href="<%= flash[:guest_short_url] %>" target="_blank"
+         rel="noopener noreferrer" class="guest-result-url">
+        <%= flash[:guest_short_url] %>
+      </a>
+      <button class="copy-btn copy-btn-lg" data-url="<%= flash[:guest_short_url] %>">Copy</button>
     </div>
-    <button class="copy-btn" data-url="<%= flash[:guest_short_url] %>" title="Copy short link" type="button">Copy</button>
-  </section>
+    <p class="guest-result-hint">
+      <%= link_to "Sign up free", new_user_registration_path %> to save links, track analytics, and create custom aliases.
+    </p>
+  </div>
 <% end %>
 
+<%# Dashboard — signed-in users only %>
 <% if @urls.any? %>
-  <section class="links-section" aria-labelledby="links-title">
+  <section class="links-section">
     <div class="links-header">
-      <h2 class="links-title" id="links-title">Your links</h2>
-      <span class="links-count"><%= pluralize(@urls.size, "link") %></span>
+      <h2 class="links-title">Your links</h2>
+      <span class="links-count"><%= @urls.size %></span>
     </div>
 
     <div class="links-list">
       <% @urls.each do |url| %>
-        <article class="link-card">
+        <div class="link-card">
           <div class="link-card-body">
             <div class="link-card-top">
               <%= link_to short_url_for(url), redirect_short_url_path(url.short_code),
                     target: "_blank", rel: "noopener noreferrer", class: "link-short" %>
-              <button class="copy-btn" data-url="<%= short_url_for(url) %>" title="Copy short link" type="button">
-                Copy
-              </button>
+              <button class="copy-btn" data-url="<%= short_url_for(url) %>">Copy</button>
+
+              <%# Secondary actions — hover reveal (Progressive Disclosure) %>
+              <div class="link-hover-actions">
+                <%= link_to "Stats", analytics_url_path(url), class: "link-action" %>
+                <%= link_to "QR", qr_code_url_path(url), class: "link-action" %>
+                <%= button_to "Delete", url_path(url), method: :delete,
+                      class: "link-action link-action-delete",
+                      data: { turbo_confirm: "Delete this link?" },
+                      form: { style: "display:contents" } %>
+              </div>
             </div>
-            <%= link_to truncate(url.original_url, length: 96), url.original_url,
+            <%= link_to truncate(url.original_url, length: 72), url.original_url,
                   target: "_blank", rel: "noopener noreferrer", class: "link-original",
                   title: url.original_url %>
           </div>
 
-          <div class="link-card-meta">
-            <span class="link-clicks"><%= pluralize(url.clicks, "click") %></span>
+          <div class="link-card-right">
+            <span class="link-clicks"><%= url.clicks %> <%= url.clicks == 1 ? "click" : "clicks" %></span>
             <span class="link-date"><%= url.created_at.strftime("%b %d") %></span>
-            <div class="link-actions" aria-label="Link actions">
-              <%= link_to "A", analytics_url_path(url), class: "action-btn", title: "Analytics" %>
-              <%= link_to "QR", qr_code_url_path(url), class: "action-btn", title: "QR code",
-                    target: "_blank" %>
-              <%= button_to "x", url_path(url), method: :delete,
-                    class: "action-btn action-btn-danger",
-                    title: "Delete",
-                    data: { turbo_confirm: "Delete this short URL?" },
-                    form: { style: "display:contents" } %>
-            </div>
           </div>
-        </article>
+        </div>
       <% end %>
     </div>
   </section>
 
 <% elsif user_signed_in? %>
   <div class="empty-state">
-    <div class="empty-state-icon" aria-hidden="true"></div>
-    <p>No links yet. Paste a URL above to create your first short link.</p>
+    <span class="empty-state-icon">🔗</span>
+    <p>No links yet — paste a URL above to get started.</p>
   </div>
 
-<% else %>
+<% elsif flash[:guest_short_url].blank? %>
+  <%# Only show CTA if guest hasn't just created a link %>
   <div class="cta-section">
-    <p>Create a free account to save links and see click history.</p>
-    <%= link_to "Create account", new_user_registration_path, class: "btn btn-primary" %>
+    <p>Create a free account to save links, track analytics, and use custom aliases.</p>
+    <%= link_to "Create free account", new_user_registration_path, class: "btn btn-primary" %>
     <%= link_to "Sign in", new_user_session_path, class: "btn btn-outline" %>
   </div>
 <% end %>
 
 <script type="module">
+  const urlInput = document.querySelector('.form-input');
+  const shortenBtn = document.querySelector('.btn-shorten');
+  const form = document.querySelector('form');
+
+  // Fitts's Law: '/' keyboard shortcut = no hunting for input
+  document.addEventListener('keydown', e => {
+    const tag = document.activeElement?.tagName;
+    if (e.key === '/' && tag !== 'INPUT' && tag !== 'TEXTAREA') {
+      e.preventDefault();
+      urlInput?.focus();
+      urlInput?.select();
+    }
+  });
+
+  // Doherty Threshold: instant feedback on submit (<400ms perceived)
+  form?.addEventListener('submit', () => {
+    if (shortenBtn && !shortenBtn.disabled) {
+      shortenBtn.textContent = 'Shortening...';
+      shortenBtn.disabled = true;
+      shortenBtn.style.opacity = '0.7';
+    }
+  });
+
+  // Alias toggle
   const toggle = document.getElementById('alias-toggle');
-  const row = document.getElementById('alias-row');
-
+  const row    = document.getElementById('alias-row');
   if (toggle && row) {
-    const setAliasOpen = (open) => {
-      if (open) {
-        row.removeAttribute('hidden');
-        toggle.textContent = 'Hide custom alias';
-        toggle.setAttribute('aria-expanded', 'true');
-        row.querySelector('input')?.focus();
-      } else {
-        row.setAttribute('hidden', '');
-        toggle.textContent = 'Use a custom alias';
-        toggle.setAttribute('aria-expanded', 'false');
-      }
-    };
-
-    toggle.addEventListener('click', () => setAliasOpen(row.hasAttribute('hidden')));
-
-    const aliasInput = row.querySelector('input');
-    if (aliasInput && aliasInput.value) setAliasOpen(true);
+    toggle.addEventListener('click', () => {
+      const hidden = row.hasAttribute('hidden');
+      row.toggleAttribute('hidden', !hidden);
+      toggle.textContent = hidden ? '− hide alias' : '+ customize alias';
+      if (hidden) row.querySelector('input')?.focus();
+    });
+    if (row.querySelector('input')?.value) {
+      row.removeAttribute('hidden');
+      toggle.textContent = '− hide alias';
+    }
   }
 
-  document.querySelectorAll('.copy-btn').forEach((btn) => {
+  // Copy: Doherty Threshold + Peak-End Rule — make it satisfying
+  document.querySelectorAll('.copy-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       navigator.clipboard.writeText(btn.dataset.url).then(() => {
-        btn.textContent = 'Copied';
+        const orig = btn.textContent;
+        btn.textContent = '✓ Copied';
         btn.classList.add('copied');
-        setTimeout(() => {
-          btn.textContent = 'Copy';
-          btn.classList.remove('copied');
-        }, 1600);
-      }).catch(() => {
-        btn.textContent = 'Failed';
-        setTimeout(() => { btn.textContent = 'Copy'; }, 1600);
+        setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
       });
     });
   });
+
+  // Hint: show keyboard shortcut hint in placeholder
+  if (urlInput && !urlInput.value) {
+    setTimeout(() => {
+      if (!urlInput.matches(':focus'))
+        urlInput.placeholder = 'Enter the link here  ·  press / to focus';
+    }, 1500);
+    urlInput.addEventListener('focus', () => {
+      urlInput.placeholder = 'https://paste-your-long-url-here.com';
+    });
+  }
 </script>

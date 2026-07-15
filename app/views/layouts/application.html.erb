@@ -18,12 +18,13 @@
     <nav class="navbar">
       <div class="nav-container">
         <%= link_to root_path, class: "nav-brand" do %>
-          <span class="nav-brand-dot"></span>shorty
-          <span class="nav-version" id="nav-version">v<%= APP_VERSION %></span>
+          shorty
         <% end %>
         <div class="nav-links">
           <% if user_signed_in? %>
-            <span class="nav-email"><%= current_user.email %></span>
+            <div class="nav-avatar" title="<%= current_user.email %>">
+              <%= current_user.email[0].upcase %>
+            </div>
             <%= link_to "Account", edit_user_registration_path, class: "nav-link" %>
             <%= button_to "Sign out", destroy_user_session_path, method: :delete, class: "nav-btn nav-btn-outline" %>
           <% else %>
