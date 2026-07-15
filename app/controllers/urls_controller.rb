@@ -7,6 +7,13 @@ class UrlsController < ApplicationController
     @urls = user_signed_in? ? current_user.urls.order(created_at: :desc) : []
   end
 
+  def click_counts
+    return render json: [] unless user_signed_in?
+    counts = current_user.urls.pluck(:id, :clicks)
+                         .map { |id, c| { id: id, clicks: c } }
+    render json: counts
+  end
+
   def create
     @url = Url.new(permitted_url_params)
     @url.user = current_user if user_signed_in?

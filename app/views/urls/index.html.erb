@@ -63,7 +63,7 @@
 
     <div class="links-list">
       <% @urls.each do |url| %>
-        <div class="link-card">
+        <div class="link-card" data-url-id="<%= url.id %>">
           <%# Left: URL info — always visible %>
           <div class="link-card-body">
             <div class="link-card-top">
@@ -85,10 +85,9 @@
             <div class="link-actions">
               <%= link_to "Stats", analytics_url_path(url), class: "link-action" %>
               <%= link_to "QR", qr_code_url_path(url), class: "link-action" %>
-              <%= button_to "Delete", url_path(url), method: :delete,
+              <%= link_to "Delete", url_path(url),
                     class: "link-action link-action-delete",
-                    data: { turbo_confirm: "Delete this link?" },
-                    form: { style: "display:contents" } %>
+                    data: { turbo_method: :delete, turbo_confirm: "Delete this link?" } %>
             </div>
           </div>
         </div>
@@ -167,10 +166,38 @@
   if (urlInput && !urlInput.value) {
     setTimeout(() => {
       if (!urlInput.matches(':focus'))
-        urlInput.placeholder = 'Enter the link here  ·  press / to focus';
+        urlInput.placeholder = 'Enter the link here  \u00b7  press / to focus';
     }, 1500);
     urlInput.addEventListener('focus', () => {
       urlInput.placeholder = 'https://paste-your-long-url-here.com';
     });
+  }
+
+  // ── Real-time click counts — poll every 15s, update only changed numbers ──
+  function pollClicks() {
+    if (!document.querySelector('[data-url-id]')) return;
+    fetch('/urls/click_counts', { headers: { Accept: 'application/json' } })
+      .then(r => r.ok ? r.json() : [])
+      .then(data => {
+        data.forEach(({ id, clicks }) => {
+          const card = document.querySelector(`[data-url-id="${id}"]`);
+          const el = card?.querySelector('.link-clicks');
+          if (!el) return;
+          const label = `${clicks} ${clicks === 1 ? 'click' : 'clicks'}`;
+          if (el.textContent.trim() !== label) {
+            el.textContent = label;
+            // Flash animation so user notices the update
+            el.classList.remove('count-updated');
+            void el.offsetWidth; // reflow to restart animation
+            el.classList.add('count-updated');
+          }
+        });
+      })
+      .catch(() => {}); // silent fail — user just won't see update if offline
+  }
+
+  // Start polling only if there are links on screen
+  if (document.querySelector('[data-url-id]')) {
+    setInterval(pollClicks, 10_000);
   }
 </script>

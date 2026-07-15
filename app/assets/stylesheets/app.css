@@ -469,7 +469,13 @@ body {
   font-weight: 500;
   color: var(--text-2);
   white-space: nowrap;
+  transition: color 0.3s;
 }
+@keyframes count-flash {
+  0%   { color: var(--blue); font-weight: 700; }
+  100% { color: var(--text-2); font-weight: 500; }
+}
+.link-clicks.count-updated { animation: count-flash 1.2s ease forwards; }
 
 .link-date {
   font-size: 0.78rem;
@@ -509,7 +515,15 @@ body {
 }
 .link-action:hover { background: var(--bg); color: var(--text-2); }
 .link-action-delete:hover { background: var(--red-l); color: var(--red); }
-.link-action form { display: contents; }
+/* Touch: minimum 44px tap target (Apple HIG / Fitts's Law) */
+@media (hover: none) {
+  .link-action {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 0.65rem;
+  }
+}
 
 /* ── Animations ───────────────────────────────────── */
 /* Continuity: staggered entrance gives sense of order */
