@@ -22,6 +22,7 @@ class UrlsController < ApplicationController
     @url.user = current_user if user_signed_in?
 
     if @url.save
+      broadcast_url_to_user(@url)
       if user_signed_in?
         redirect_to root_path, notice: "Short URL created successfully!"
       else
@@ -60,8 +61,8 @@ class UrlsController < ApplicationController
     @url.short_code = generate_long_code
 
     if @url.save
-      long_url = short_url_for(@url)
-      render json: { long_url: long_url }
+      broadcast_url_to_user(@url)
+      render json: { long_url: short_url_for(@url) }
     else
       render json: { error: @url.errors.full_messages.first }, status: :unprocessable_entity
     end
@@ -161,6 +162,16 @@ class UrlsController < ApplicationController
     count = Rails.cache.increment(key, 1, expires_in: EXPAND_RATE_WINDOW) rescue nil
     return unless count.is_a?(Integer) && count > EXPAND_RATE_LIMIT
     render json: { error: "Too many requests. Please slow down." }, status: :too_many_requests
+  end
+
+  def broadcast_url_to_user(url)
+    return unless url.user_id.present?
+    Turbo::StreamsChannel.broadcast_prepend_to(
+      "urls_#{url.user_id}",
+      target: "urls_list",
+      partial: "urls/url",
+      locals: { url: url }
+    )
   end
 
   def permitted_url_params
