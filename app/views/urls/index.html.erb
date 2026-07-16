@@ -348,12 +348,7 @@
       });
       const data = await resp.json();
       if (data.error) throw new Error(data.error);
-
-      resultUrl.href = data.long_url;
-      resultUrl.textContent = data.long_url;
-      copyBtn.dataset.url = data.long_url;
-      result.hidden = false;
-      setTimeout(() => window.location.reload(), 2000);
+      window.location.reload();
     } catch (e) {
       errEl.textContent = e.message;
       errEl.hidden = false;
