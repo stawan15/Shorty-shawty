@@ -1,0 +1,20 @@
+name: Deploy-feature
+
+on:
+  push:
+    branches: [ feature/* ]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Push to Dokku
+        run: |
+          git remote add dokku dokku@localhost:${{ secrets.DOKKU_APP }} 2>/dev/null || true
+          git push dokku feature/long-url:main --force
