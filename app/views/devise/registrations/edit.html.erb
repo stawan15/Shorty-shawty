@@ -18,24 +18,23 @@
       <% end %>
     </div>
 
+    <%# Current password first — verify identity before changing anything %>
+    <div class="field">
+      <%= f.label :current_password, "Current Password" %>
+      <span class="field-hint">Required to save any changes</span>
+      <%= f.password_field :current_password, autocomplete: "current-password", placeholder: "Your current password" %>
+    </div>
+
+    <%# Then new password fields %>
     <div class="field">
       <%= f.label :password, "New Password" %>
-      <span class="field-hint">Leave blank to keep your current password</span>
+      <span class="field-hint">Leave blank to keep current password<% if @minimum_password_length %> · <%= @minimum_password_length %> characters minimum<% end %></span>
       <%= f.password_field :password, autocomplete: "new-password", placeholder: "New password" %>
-      <% if @minimum_password_length %>
-        <span class="field-hint"><%= @minimum_password_length %> characters minimum</span>
-      <% end %>
     </div>
 
     <div class="field">
       <%= f.label :password_confirmation, "Confirm New Password" %>
       <%= f.password_field :password_confirmation, autocomplete: "new-password", placeholder: "Confirm new password" %>
-    </div>
-
-    <div class="field">
-      <%= f.label :current_password, "Current Password" %>
-      <span class="field-hint">Required to save any changes</span>
-      <%= f.password_field :current_password, autocomplete: "current-password", placeholder: "Your current password" %>
     </div>
 
     <div class="actions">

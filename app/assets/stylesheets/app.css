@@ -471,11 +471,15 @@ body {
   white-space: nowrap;
   transition: color 0.3s;
 }
-@keyframes count-flash {
-  0%   { color: var(--blue); font-weight: 700; }
-  100% { color: var(--text-2); font-weight: 500; }
+@keyframes count-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.22); font-weight: 700; }
+  100% { transform: scale(1); font-weight: 500; }
 }
-.link-clicks.count-updated { animation: count-flash 1.2s ease forwards; }
+.link-clicks.count-updated {
+  display: inline-block;
+  animation: count-pop 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
 
 .link-date {
   font-size: 0.78rem;

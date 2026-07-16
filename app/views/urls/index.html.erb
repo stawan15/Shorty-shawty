@@ -97,7 +97,6 @@
 
 <% elsif user_signed_in? %>
   <div class="empty-state">
-    <span class="empty-state-icon">🔗</span>
     <p>No links yet — paste a URL above to get started.</p>
   </div>
 
@@ -188,8 +187,9 @@
             el.textContent = label;
             // Flash animation so user notices the update
             el.classList.remove('count-updated');
-            void el.offsetWidth; // reflow to restart animation
+            void el.offsetWidth; // reflow to restart
             el.classList.add('count-updated');
+            setTimeout(() => el.classList.remove('count-updated'), 500);
           }
         });
       })
