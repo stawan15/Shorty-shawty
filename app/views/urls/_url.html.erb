@@ -1,0 +1,27 @@
+<% kind = url.short_code.length > 20 ? "long" : "short" %>
+<div class="link-card" data-url-id="<%= url.id %>" data-kind="<%= kind %>">
+  <%# Left: URL info — always visible %>
+  <div class="link-card-body">
+    <div class="link-card-top">
+      <%= link_to short_url_for(url), redirect_short_url_path(url.short_code),
+            target: "_blank", rel: "noopener noreferrer", class: "link-short" %>
+      <button class="copy-btn" data-url="<%= short_url_for(url) %>">Copy</button>
+    </div>
+    <%= link_to truncate(url.original_url, length: 72), url.original_url,
+          target: "_blank", rel: "noopener noreferrer", class: "link-original",
+          title: url.original_url %>
+  </div>
+
+  <%# Right: stats + actions %>
+  <div class="link-card-side">
+    <span class="link-clicks"><%= url.clicks %> <%= url.clicks == 1 ? "click" : "clicks" %></span>
+    <span class="link-date"><%= url.created_at.strftime("%b %d") %></span>
+    <div class="link-actions">
+      <%= link_to "Stats", analytics_url_path(url), class: "link-action" %>
+      <%= link_to "QR", qr_code_url_path(url), class: "link-action" %>
+      <%= link_to "Delete", url_path(url),
+            class: "link-action link-action-delete",
+            data: { turbo_method: :delete, turbo_confirm: "Delete this link?" } %>
+    </div>
+  </div>
+</div>
