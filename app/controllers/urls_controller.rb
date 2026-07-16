@@ -3,6 +3,7 @@ require "net/http"
 class UrlsController < ApplicationController
   before_action :authenticate_user!, only: [:destroy, :analytics]
   before_action :set_url, only: [:destroy, :analytics, :qr_code]
+  before_action :throttle_expand!, only: [:expand]
 
   def index
     @url = Url.new
@@ -149,6 +150,17 @@ class UrlsController < ApplicationController
     loop do
       code = SecureRandom.alphanumeric(rand(200..300))
       return code unless Url.exists?(short_code: code)
+    end
+  end
+
+  EXPAND_RATE_LIMIT = 10 # requests per window
+  EXPAND_RATE_WINDOW = 60 # seconds
+
+  def throttle_expand!
+    key = "expand:#{request.remote_ip}"
+    count = Rails.cache.increment(key, 1, expires_in: EXPAND_RATE_WINDOW)
+    if count > EXPAND_RATE_LIMIT
+      render json: { error: "Too many requests. Please slow down." }, status: :too_many_requests
     end
   end
 
