@@ -73,5 +73,3 @@ Dokku will automatically run `db:migrate` via `app.json` on each deploy.
 * Services (job queues, cache servers, search engines, etc.)
 
 * Deployment instructions
-
-* ...
