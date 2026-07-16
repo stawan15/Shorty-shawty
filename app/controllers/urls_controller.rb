@@ -158,10 +158,9 @@ class UrlsController < ApplicationController
 
   def throttle_expand!
     key = "expand:#{request.remote_ip}"
-    count = Rails.cache.increment(key, 1, expires_in: EXPAND_RATE_WINDOW)
-    if count > EXPAND_RATE_LIMIT
-      render json: { error: "Too many requests. Please slow down." }, status: :too_many_requests
-    end
+    count = Rails.cache.increment(key, 1, expires_in: EXPAND_RATE_WINDOW) rescue nil
+    return unless count.is_a?(Integer) && count > EXPAND_RATE_LIMIT
+    render json: { error: "Too many requests. Please slow down." }, status: :too_many_requests
   end
 
   def permitted_url_params
