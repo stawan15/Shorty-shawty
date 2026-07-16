@@ -10,6 +10,8 @@ Rails.application.routes.draw do
     end
     collection do
       get :click_counts  # JSON endpoint for real-time polling
+      post :expand
+      post :lengthen
     end
   end
 
