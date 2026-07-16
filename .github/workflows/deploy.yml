@@ -17,4 +17,4 @@ jobs:
       - name: Push to Dokku
         run: |
           git remote add dokku dokku@localhost:${{ secrets.DOKKU_APP }} 2>/dev/null || true
-          git push dokku HEAD:develop --force
+          git push dokku HEAD:main --force
