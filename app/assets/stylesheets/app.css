@@ -981,5 +981,9 @@ body {
   color: var(--blue);
   word-break: break-all;
   flex: 1;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
 }
 .expand-result-link:hover { text-decoration: underline; }
