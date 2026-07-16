@@ -448,6 +448,11 @@ body {
   color: var(--blue);
   text-decoration: none;
   letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1;
 }
 .link-short:hover { text-decoration: underline; }
 
