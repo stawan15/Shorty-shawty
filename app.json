@@ -3,7 +3,7 @@
   "description": "URL Shortener built with Rails",
   "scripts": {
     "dokku": {
-      "predeploy": "bundle exec rails db:migrate"
+      "predeploy": "bundle exec rails db:prepare"
     }
   },
   "formation": {
