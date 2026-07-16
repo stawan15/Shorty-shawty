@@ -37,34 +37,41 @@
   <p class="hero-hint">Free URL shortener. Shorten links and track clicks.</p>
 </div>
 
-<div class="expand-card">
-  <h2 class="expand-title">Lengthen a URL</h2>
-  <p class="expand-hint">Paste any link and we'll make it absurdly, ridiculously, unnecessarily long.</p>
-  <div class="expand-row">
-    <input type="url" id="lengthen-input" class="form-input" placeholder="https://example.com" />
-    <button id="lengthen-btn" class="btn-shorten">Lengthen</button>
+<div class="tools-card">
+  <div class="tools-tabs">
+    <button class="tools-tab active" data-tab="lengthen">Lengthen</button>
+    <button class="tools-tab" data-tab="expand">Expand</button>
   </div>
-  <div id="lengthen-result" hidden>
-    <span class="expand-result-label">Long URL:</span>
-    <a id="lengthen-result-url" href="#" target="_blank" rel="noopener noreferrer" class="expand-result-link"></a>
-    <button class="copy-btn" id="lengthen-copy-btn">Copy</button>
-  </div>
-  <p id="lengthen-error" class="form-errors" hidden></p>
-</div>
 
-<div class="expand-card">
-  <h2 class="expand-title">Expand a short URL</h2>
-  <p class="expand-hint">Paste any short link to reveal the final destination before clicking it.</p>
-  <div class="expand-row">
-    <input type="url" id="expand-input" class="form-input" placeholder="https://bit.ly/..." />
-    <button id="expand-btn" class="btn-shorten">Expand</button>
+  <%# Lengthen panel %>
+  <div id="tab-lengthen" class="tools-panel">
+    <p class="expand-hint">Paste any link and we'll make it absurdly, ridiculously, unnecessarily long.</p>
+    <div class="expand-row">
+      <input type="url" id="lengthen-input" class="form-input" placeholder="https://example.com" />
+      <button id="lengthen-btn" class="btn-shorten">Lengthen</button>
+    </div>
+    <div id="lengthen-result" hidden>
+      <span class="expand-result-label">Long URL:</span>
+      <a id="lengthen-result-url" href="#" target="_blank" rel="noopener noreferrer" class="expand-result-link"></a>
+      <button class="copy-btn" id="lengthen-copy-btn">Copy</button>
+    </div>
+    <p id="lengthen-error" class="form-errors" hidden></p>
   </div>
-  <div id="expand-result" hidden>
-    <span class="expand-result-label">Final URL:</span>
-    <a id="expand-result-url" href="#" target="_blank" rel="noopener noreferrer" class="expand-result-link"></a>
-    <button class="copy-btn" id="expand-copy-btn">Copy</button>
+
+  <%# Expand panel %>
+  <div id="tab-expand" class="tools-panel" hidden>
+    <p class="expand-hint">Paste any short link to reveal the final destination before clicking it.</p>
+    <div class="expand-row">
+      <input type="url" id="expand-input" class="form-input" placeholder="https://bit.ly/..." />
+      <button id="expand-btn" class="btn-shorten">Expand</button>
+    </div>
+    <div id="expand-result" hidden>
+      <span class="expand-result-label">Final URL:</span>
+      <a id="expand-result-url" href="#" target="_blank" rel="noopener noreferrer" class="expand-result-link"></a>
+      <button class="copy-btn" id="expand-copy-btn">Copy</button>
+    </div>
+    <p id="expand-error" class="form-errors" hidden></p>
   </div>
-  <p id="expand-error" class="form-errors" hidden></p>
 </div>
 
 <%# Guest result — shows after shortening without an account %>
@@ -88,12 +95,18 @@
   <section class="links-section">
     <div class="links-header">
       <h2 class="links-title">Your links</h2>
-      <span class="links-count"><%= @urls.size %></span>
+      <span class="links-count" id="links-count"><%= @urls.size %></span>
+      <div class="links-filter">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="short">Short</button>
+        <button class="filter-btn" data-filter="long">Long</button>
+      </div>
     </div>
 
     <div class="links-list">
       <% @urls.each do |url| %>
-        <div class="link-card" data-url-id="<%= url.id %>">
+        <% kind = url.short_code.length > 20 ? "long" : "short" %>
+        <div class="link-card" data-url-id="<%= url.id %>" data-kind="<%= kind %>">
           <%# Left: URL info — always visible %>
           <div class="link-card-body">
             <div class="link-card-top">
@@ -230,6 +243,36 @@
   if (document.querySelector('[data-url-id]')) {
     setInterval(pollClicks, 10_000);
   }
+
+  // ── Filter tabs ──────────────────────────────────────────────────────
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const cards = document.querySelectorAll('.link-card[data-kind]');
+  const countEl = document.getElementById('links-count');
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+      let visible = 0;
+      cards.forEach(card => {
+        const show = filter === 'all' || card.dataset.kind === filter;
+        card.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      if (countEl) countEl.textContent = visible;
+    });
+  });
+
+  // ── Tools tabs (Lengthen / Expand) ───────────────────────────────────
+  document.querySelectorAll('.tools-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tools-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tools-panel').forEach(p => p.hidden = true);
+      tab.classList.add('active');
+      document.getElementById('tab-' + tab.dataset.tab).hidden = false;
+    });
+  });
 </script>
 
 <script type="module">
