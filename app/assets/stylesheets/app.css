@@ -836,6 +836,13 @@ body {
 .devise-form input[type=password]:focus,
 .devise-form input[type=text]:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,107,255,0.08); }
 .devise-form input::placeholder { color: var(--text-3); font-weight: 300; }
+.devise-form input:-webkit-autofill,
+.devise-form input:-webkit-autofill:hover,
+.devise-form input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px var(--card) inset;
+  -webkit-text-fill-color: var(--text);
+  transition: background-color 5000s ease-in-out 0s;
+}
 .field-check { display: flex; align-items: center; gap: 0.4rem; }
 .field-check label { margin-bottom: 0; font-weight: 300; }
 .field-check input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--blue); cursor: pointer; box-shadow: none; border: none; padding: 0; }

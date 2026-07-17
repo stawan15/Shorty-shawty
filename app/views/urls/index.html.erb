@@ -167,15 +167,17 @@
     }
   }
 
-  // Copy: Doherty Threshold + Peak-End Rule — make it satisfying
-  document.querySelectorAll('.copy-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      navigator.clipboard.writeText(btn.dataset.url).then(() => {
-        const orig = btn.textContent;
-        btn.textContent = '✓ Copied';
-        btn.classList.add('copied');
-        setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
-      });
+  // Copy: event delegation so Turbo stream-added cards also work
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.copy-btn');
+    if (!btn) return;
+    const url = btn.dataset.url;
+    if (!url) return;
+    navigator.clipboard.writeText(url).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = '✓ Copied';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
     });
   });
 
