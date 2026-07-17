@@ -21,6 +21,21 @@
   --r-lg:    14px;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:      #0f0f0f;
+    --card:    #1a1a1a;
+    --border:  #2e2e2e;
+    --text:    #e8e8e8;
+    --text-2:  #a0a0a0;
+    --text-3:  #5a5a5a;
+    --blue:    #22c074;
+    --blue-d:  #1a9a5d;
+    --red-l:   #2a1515;
+    --green-l: #0f2a1a;
+  }
+}
+
 html {
   scroll-behavior: smooth;
   font-size: 17px;
