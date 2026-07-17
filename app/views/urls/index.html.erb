@@ -168,12 +168,28 @@
   }
 
   // Copy: event delegation so Turbo stream-added cards also work
+  function copyToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text);
+    }
+    // Fallback for HTTP / non-secure contexts
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    return Promise.resolve();
+  }
+
   document.addEventListener('click', e => {
     const btn = e.target.closest('.copy-btn');
     if (!btn) return;
     const url = btn.dataset.url;
     if (!url) return;
-    navigator.clipboard.writeText(url).then(() => {
+    copyToClipboard(url).then(() => {
       const orig = btn.textContent;
       btn.textContent = '✓ Copied';
       btn.classList.add('copied');
