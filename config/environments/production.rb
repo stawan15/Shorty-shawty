@@ -26,7 +26,7 @@ Rails.application.configure do
 
   # Cloudflare terminates SSL — tell Rails all requests arrive over HTTPS.
   # Fixes CSRF origin check (Origin: https:// vs Rails seeing http://).
-  config.assume_ssl = true
+  config.assume_ssl = false
 
   # Log to STDOUT with the current request id as a default log tag.
   config.log_tags = [ :request_id ]
