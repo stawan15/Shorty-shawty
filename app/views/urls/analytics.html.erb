@@ -4,8 +4,9 @@
   <div>
     <h1 class="page-title">Analytics</h1>
     <p class="page-sub">
-      <%= link_to short_url_for(@url), redirect_short_url_path(@url.short_code),
-            target: "_blank", rel: "noopener noreferrer", class: "link-short" %>
+      <%= link_to truncate(short_url_for(@url), length: 60), redirect_short_url_path(@url.short_code),
+            target: "_blank", rel: "noopener noreferrer", class: "link-short",
+            title: short_url_for(@url) %>
       <span style="color:var(--text-3)">→</span>
       <%= link_to truncate(@url.original_url, length: 55), @url.original_url,
             target: "_blank", rel: "noopener noreferrer", class: "link-muted",
